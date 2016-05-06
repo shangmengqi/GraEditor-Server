@@ -1,0 +1,627 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="97">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
+    <logicalFolder name="Thirdpart" displayName="Thirdpart" projectFiles="true">
+      <logicalFolder name="sdbdriver" displayName="sdbdriver" projectFiles="true">
+        <logicalFolder name="include" displayName="include" projectFiles="true">
+          <logicalFolder name="bson" displayName="bson" projectFiles="true">
+            <logicalFolder name="lib" displayName="lib" projectFiles="true">
+              <itemPath>Thirdpart/sdbdriver/include/bson/lib/atomic_int.h</itemPath>
+              <itemPath>Thirdpart/sdbdriver/include/bson/lib/base64.h</itemPath>
+              <itemPath>Thirdpart/sdbdriver/include/bson/lib/hex.h</itemPath>
+              <itemPath>Thirdpart/sdbdriver/include/bson/lib/md5.h</itemPath>
+              <itemPath>Thirdpart/sdbdriver/include/bson/lib/md5.hpp</itemPath>
+              <itemPath>Thirdpart/sdbdriver/include/bson/lib/nonce.h</itemPath>
+            </logicalFolder>
+            <logicalFolder name="util" displayName="util" projectFiles="true">
+              <itemPath>Thirdpart/sdbdriver/include/bson/util/builder.h</itemPath>
+              <itemPath>Thirdpart/sdbdriver/include/bson/util/embedded_builder.h</itemPath>
+              <itemPath>Thirdpart/sdbdriver/include/bson/util/hex.h</itemPath>
+              <itemPath>Thirdpart/sdbdriver/include/bson/util/misc.h</itemPath>
+              <itemPath>Thirdpart/sdbdriver/include/bson/util/optime.h</itemPath>
+            </logicalFolder>
+            <itemPath>Thirdpart/sdbdriver/include/bson/bson-inl.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/bson.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/bson.hpp</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/bson_db.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/bsonassert.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/bsonelement.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/bsonintrusiveptr.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/bsonmisc.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/bsonnoncopyable.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/bsonobj.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/bsonobjbuilder.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/bsonobjiterator.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/bsontypes.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/encoding.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/inline_decls.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/oid.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/ordering.h</itemPath>
+            <itemPath>Thirdpart/sdbdriver/include/bson/stringdata.h</itemPath>
+          </logicalFolder>
+          <itemPath>Thirdpart/sdbdriver/include/base64c.h</itemPath>
+          <itemPath>Thirdpart/sdbdriver/include/client.h</itemPath>
+          <itemPath>Thirdpart/sdbdriver/include/client.hpp</itemPath>
+          <itemPath>Thirdpart/sdbdriver/include/core.h</itemPath>
+          <itemPath>Thirdpart/sdbdriver/include/core.hpp</itemPath>
+          <itemPath>Thirdpart/sdbdriver/include/fromjson.hpp</itemPath>
+          <itemPath>Thirdpart/sdbdriver/include/json2rawbson.h</itemPath>
+          <itemPath>Thirdpart/sdbdriver/include/jstobs.h</itemPath>
+          <itemPath>Thirdpart/sdbdriver/include/ossErr.h</itemPath>
+          <itemPath>Thirdpart/sdbdriver/include/ossFeat.h</itemPath>
+          <itemPath>Thirdpart/sdbdriver/include/ossFeat.hpp</itemPath>
+          <itemPath>Thirdpart/sdbdriver/include/ossTypes.h</itemPath>
+          <itemPath>Thirdpart/sdbdriver/include/ossTypes.hpp</itemPath>
+          <itemPath>Thirdpart/sdbdriver/include/spd.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="lib" displayName="lib" projectFiles="true">
+        </logicalFolder>
+      </logicalFolder>
+    </logicalFolder>
+    <logicalFolder name="HeaderFiles" displayName="头文件" projectFiles="true">
+      <logicalFolder name="f2" displayName="Control" projectFiles="true">
+        <itemPath>Control/ControlLayer.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f3" displayName="Model" projectFiles="true">
+        <itemPath>Model/ModelLayer.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f4" displayName="Module" projectFiles="true">
+        <itemPath>Module/CooperationModule.h</itemPath>
+        <itemPath>Module/VersionModule.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="Net" projectFiles="true">
+        <itemPath>Net/NetLayer.h</itemPath>
+      </logicalFolder>
+      <itemPath>Global.hpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="SourceFiles" displayName="源文件" projectFiles="true">
+      <logicalFolder name="f2" displayName="Control" projectFiles="true">
+        <itemPath>Control/ControlLayer.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f3" displayName="Model" projectFiles="true">
+        <itemPath>Model/ModelLayer.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f4" displayName="Module" projectFiles="true">
+        <itemPath>Module/CooperationModule.cpp</itemPath>
+        <itemPath>Module/VersionModule.cpp</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="Net" projectFiles="true">
+        <itemPath>Net/NetLayer.cpp</itemPath>
+      </logicalFolder>
+      <itemPath>main.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles" displayName="资源文件" projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="TestFiles"
+                   displayName="测试文件"
+                   projectFiles="false"
+                   kind="TEST_LOGICAL_FOLDER">
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="重要文件"
+                   projectFiles="false"
+                   kind="IMPORTANT_FILES_FOLDER">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+    <itemPath>nbproject/project.properties</itemPath>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>Thirdpart</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <compilerSet>CLang|CLang</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <ccTool>
+          <standard>8</standard>
+          <incDir>
+            <pElem>Thirdpart/sdbdriver/include</pElem>
+          </incDir>
+        </ccTool>
+        <linkerTool>
+          <linkerAddLib>
+            <pElem>Thirdpart/sdbdriver/lib</pElem>
+          </linkerAddLib>
+          <commandLine>-levent -I Thirdpart/sdbdriver/include -lsdbcpp</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="Control/ControlLayer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Control/ControlLayer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Global.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Model/ModelLayer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Model/ModelLayer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Module/CooperationModule.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Module/CooperationModule.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Module/VersionModule.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Module/VersionModule.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Net/NetLayer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Net/NetLayer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/base64c.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bson-inl.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bson.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bson.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bson_db.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonassert.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonelement.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonintrusiveptr.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonmisc.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonnoncopyable.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonobj.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonobjbuilder.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonobjiterator.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsontypes.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/encoding.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/inline_decls.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/lib/atomic_int.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/lib/base64.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/lib/hex.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/lib/md5.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/lib/md5.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/lib/nonce.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/oid.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/ordering.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/stringdata.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/util/builder.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/util/embedded_builder.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/util/hex.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/util/misc.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/util/optime.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/client.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/client.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/core.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/core.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/fromjson.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/json2rawbson.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/jstobs.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/ossErr.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/ossFeat.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/ossFeat.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/ossTypes.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/ossTypes.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/spd.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="nbproject/project.properties" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <compilerSet>CLang|CLang</compilerSet>
+        <dependencyChecking>true</dependencyChecking>
+        <rebuildPropChanged>false</rebuildPropChanged>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <standard>8</standard>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <asmTool>
+          <developmentMode>5</developmentMode>
+        </asmTool>
+      </compileType>
+      <item path="Control/ControlLayer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Control/ControlLayer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Global.hpp" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Model/ModelLayer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Model/ModelLayer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Module/CooperationModule.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Module/CooperationModule.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Module/VersionModule.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Module/VersionModule.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Net/NetLayer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Net/NetLayer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/base64c.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bson-inl.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bson.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bson.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bson_db.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonassert.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonelement.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonintrusiveptr.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonmisc.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonnoncopyable.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonobj.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonobjbuilder.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsonobjiterator.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/bsontypes.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/encoding.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/inline_decls.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/lib/atomic_int.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/lib/base64.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/lib/hex.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/lib/md5.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/lib/md5.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/lib/nonce.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/oid.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/ordering.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/stringdata.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/util/builder.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/util/embedded_builder.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/util/hex.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/util/misc.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/bson/util/optime.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/client.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/client.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/core.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/core.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/fromjson.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/json2rawbson.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/jstobs.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/ossErr.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/ossFeat.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/ossFeat.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/ossTypes.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/ossTypes.hpp"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/sdbdriver/include/spd.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="main.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="nbproject/project.properties" ex="false" tool="3" flavor2="0">
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
