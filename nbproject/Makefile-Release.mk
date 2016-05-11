@@ -65,37 +65,37 @@ LDLIBSOPTIONS=
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/graeditor-server: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/graeditor-server ${OBJECTFILES} ${LDLIBSOPTIONS}
+	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/graeditor-server ${OBJECTFILES} ${LDLIBSOPTIONS} -levent -I Thirdpart/sdbdriver/include -L Thirdpart/sdbdriver/lib -lsdbcpp
 
 ${OBJECTDIR}/Control/ControlLayer.o: Control/ControlLayer.cpp 
 	${MKDIR} -p ${OBJECTDIR}/Control
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Control/ControlLayer.o Control/ControlLayer.cpp
+	$(COMPILE.cc) -O2 -IThirdpart/sdbdriver/include -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Control/ControlLayer.o Control/ControlLayer.cpp
 
 ${OBJECTDIR}/Model/ModelLayer.o: Model/ModelLayer.cpp 
 	${MKDIR} -p ${OBJECTDIR}/Model
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Model/ModelLayer.o Model/ModelLayer.cpp
+	$(COMPILE.cc) -O2 -IThirdpart/sdbdriver/include -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Model/ModelLayer.o Model/ModelLayer.cpp
 
 ${OBJECTDIR}/Module/CooperationModule.o: Module/CooperationModule.cpp 
 	${MKDIR} -p ${OBJECTDIR}/Module
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Module/CooperationModule.o Module/CooperationModule.cpp
+	$(COMPILE.cc) -O2 -IThirdpart/sdbdriver/include -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Module/CooperationModule.o Module/CooperationModule.cpp
 
 ${OBJECTDIR}/Module/VersionModule.o: Module/VersionModule.cpp 
 	${MKDIR} -p ${OBJECTDIR}/Module
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Module/VersionModule.o Module/VersionModule.cpp
+	$(COMPILE.cc) -O2 -IThirdpart/sdbdriver/include -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Module/VersionModule.o Module/VersionModule.cpp
 
 ${OBJECTDIR}/Net/NetLayer.o: Net/NetLayer.cpp 
 	${MKDIR} -p ${OBJECTDIR}/Net
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Net/NetLayer.o Net/NetLayer.cpp
+	$(COMPILE.cc) -O2 -IThirdpart/sdbdriver/include -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Net/NetLayer.o Net/NetLayer.cpp
 
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
-	$(COMPILE.cc) -O2 -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
+	$(COMPILE.cc) -O2 -IThirdpart/sdbdriver/include -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/main.o main.cpp
 
 # Subprojects
 .build-subprojects:

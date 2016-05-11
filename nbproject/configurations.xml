@@ -124,10 +124,8 @@
           </incDir>
         </ccTool>
         <linkerTool>
-          <linkerAddLib>
-            <pElem>Thirdpart/sdbdriver/lib</pElem>
-          </linkerAddLib>
-          <commandLine>-levent -I Thirdpart/sdbdriver/include -lsdbcpp</commandLine>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/graeditor-server</output>
+          <commandLine>-levent -I Thirdpart/sdbdriver/include -L Thirdpart/sdbdriver/lib -lsdbcpp</commandLine>
         </linkerTool>
       </compileType>
       <item path="Control/ControlLayer.cpp" ex="false" tool="1" flavor2="0">
@@ -379,6 +377,9 @@
         <ccTool>
           <developmentMode>5</developmentMode>
           <standard>8</standard>
+          <incDir>
+            <pElem>Thirdpart/sdbdriver/include</pElem>
+          </incDir>
         </ccTool>
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
@@ -386,6 +387,9 @@
         <asmTool>
           <developmentMode>5</developmentMode>
         </asmTool>
+        <linkerTool>
+          <commandLine>-levent -I Thirdpart/sdbdriver/include -L Thirdpart/sdbdriver/lib -lsdbcpp</commandLine>
+        </linkerTool>
       </compileType>
       <item path="Control/ControlLayer.cpp" ex="false" tool="1" flavor2="0">
       </item>

@@ -17,13 +17,35 @@
 #ifndef MODELLAYER_H
 #define MODELLAYER_H
 
+#include <string>
+#include <iostream>
+#include "client.hpp"
+
+using namespace std;
+using namespace sdbclient;
+using namespace bson;
+
+
 class ModelLayer {
 public:
     ModelLayer();
     ModelLayer(const ModelLayer& orig);
     virtual ~ModelLayer();
     
-    //
+    // 查询
+    
+    
+    // 插入
+    int insert(const std::string jsonStr, std::string setSpace, std::string set);
+    
+    // 数据库连接
+    sdb connection;
+    
+    // 数据库连接参数
+    std::string s_hostName = "localhost";
+    std::string s_port = "11810";
+    std::string s_usr = "sdbadmin";
+    std::string s_passwd = "sdbadmin";
     
 private:
 

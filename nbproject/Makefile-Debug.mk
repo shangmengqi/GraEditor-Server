@@ -57,7 +57,7 @@ FFLAGS=
 ASFLAGS=
 
 # Link Libraries and Options
-LDLIBSOPTIONS=-LThirdpart/sdbdriver/lib
+LDLIBSOPTIONS=
 
 # Build Targets
 .build-conf: ${BUILD_SUBPROJECTS}
@@ -65,7 +65,7 @@ LDLIBSOPTIONS=-LThirdpart/sdbdriver/lib
 
 ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/graeditor-server: ${OBJECTFILES}
 	${MKDIR} -p ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}
-	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/graeditor-server ${OBJECTFILES} ${LDLIBSOPTIONS} -levent -I Thirdpart/sdbdriver/include -lsdbcpp
+	${LINK.cc} -o ${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/graeditor-server ${OBJECTFILES} ${LDLIBSOPTIONS} -levent -I Thirdpart/sdbdriver/include -L Thirdpart/sdbdriver/lib -lsdbcpp
 
 ${OBJECTDIR}/Control/ControlLayer.o: Control/ControlLayer.cpp 
 	${MKDIR} -p ${OBJECTDIR}/Control

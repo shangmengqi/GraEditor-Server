@@ -17,6 +17,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <string>
 #include <event.h>
 #include "client.hpp"
 
@@ -31,6 +32,7 @@ using namespace bson ;
  */
 int main(int argc, char** argv)
 {
+    string test("123456789101112131415");
     NetLayer netLayer;
     netLayer.init();
     netLayer.startLoop();

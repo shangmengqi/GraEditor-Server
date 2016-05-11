@@ -21,6 +21,9 @@
 #include <event2/http_compat.h> 
 #include <event2/http_struct.h>
 #include <string>
+//#include "../Global.hpp"
+class HTTPMessage;
+class VersionModule;
 
 class NetLayer {
 public:
@@ -37,7 +40,7 @@ public:
     static void pullRequestHandler(struct evhttp_request *req, void *arg);
     
     // 最大buf
-    int MAXBUF = 1024*16;
+    int MAXBUF = 1024*1024*1; // 1mb
     // http结构
     struct event_base *base;
     struct evhttp *httpServer;
@@ -47,9 +50,14 @@ public:
     int _port = 8080;
     // 超时长度
     int _timeout = 5;
+
+    // 该网络层所关联的版本控制模块
+    VersionModule* versionModule;
     
     
 private:
+    // 从指定下标开始，解析出header中的key部分对应的值
+    int decodePost(std::string& input_buffer, HTTPMessage* message);
 
 };
 

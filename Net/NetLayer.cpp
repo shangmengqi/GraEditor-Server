@@ -30,6 +30,7 @@ NetLayer::~NetLayer()
 }
 
 // 初始化网络参数
+
 int NetLayer::init()
 {
     // 初始化http
@@ -62,50 +63,66 @@ void NetLayer::startLoop()
 
 void NetLayer::rootRequestHandler(evhttp_request* req, void* arg)
 {
-    auto layer = (NetLayer*)arg;
+    auto layer = (NetLayer*) arg;
     std::string out;
+    out = "testtesttest";
+    const char* t = out.c_str();
     char _buf[layer->MAXBUF];
+    memset(_buf, 0, layer->MAXBUF);
 
     size_t post_size = EVBUFFER_LENGTH(req->input_buffer);
 
-    printf("len = %zd\n", post_size);
-    if (post_size > 0 )
-    {
+    printf("len = %zd\n\n\n", post_size);
+    if (post_size > 0) {
         size_t copy_len = post_size > layer->MAXBUF ? layer->MAXBUF : post_size;
-        memcpy (_buf, EVBUFFER_DATA(req->input_buffer), copy_len);
+        memcpy(_buf, EVBUFFER_DATA(req->input_buffer), copy_len);
+
+        //cout << _buf<<endl;
+
         out.assign(_buf, copy_len);
+
+        cout << out << endl;
     }
 
-    // process posted data
-    
+    //将input buffer传入decodePost中解析，获取结果
+    HTTPMessage message;
+    layer->decodePost(out, &message);
+
+    std::string returnPrint = "root!\n";  // 用于回复客户端的消息
+
+    /*
+     * TODO:
+     * 区分message中的command类型，决定200 OK 附带的返回内容
+     * 如果需要进行文件内容比对，则交给versionModule中的控制层相关函数
+     */
+
     // 创建回复
     struct evbuffer *buf;
 
     buf = evbuffer_new();
     if (buf == NULL)
         err(1, "failed to create response buffer");
-    evbuffer_add_printf(buf, "root!\n");
+    evbuffer_add_printf(buf, returnPrint.data());
     evhttp_send_reply(req, HTTP_OK, "OK", buf);
 }
 
 void NetLayer::pullRequestHandler(evhttp_request* req, void* arg)
 {
-    auto layer = (NetLayer*)arg;
+    auto layer = (NetLayer*) arg;
     std::string out;
     char _buf[layer->MAXBUF];
 
     size_t post_size = EVBUFFER_LENGTH(req->input_buffer);
 
     printf("len = %zd\n", post_size);
-    if (post_size > 0 )
-    {
+    if (post_size > 0) {
         size_t copy_len = post_size > layer->MAXBUF ? layer->MAXBUF : post_size;
-        memcpy (_buf, EVBUFFER_DATA(req->input_buffer), copy_len);
+        memcpy(_buf, EVBUFFER_DATA(req->input_buffer), copy_len);
         out.assign(_buf, copy_len);
     }
 
     // process posted data
-    
+
     // 创建回复
     struct evbuffer *buf;
 
@@ -114,4 +131,78 @@ void NetLayer::pullRequestHandler(evhttp_request* req, void* arg)
         err(1, "failed to create response buffer");
     evbuffer_add_printf(buf, "pull!\n");
     evhttp_send_reply(req, HTTP_OK, "OK", buf);
+}
+
+/**
+ * 解析post请求中的各项键值，并存入一个HTTPMessage对象中
+ * @param input_buffer post请求提交的内容
+ * @param message 用于保存解析的结果
+ * @return 如果成功解析则返回RES_OK，如果未成功解析任何key，则返回RES_ERROR
+ */
+int NetLayer::decodePost(std::string& input_buffer, HTTPMessage* message)
+{
+    int result = RES_ERROR;
+    int index = 0; // 记录查找的起始位置，避免重复
+    // 获取分割行hash
+    int hashStart = input_buffer.find("--", 0);
+    int hashEnd = input_buffer.find("Content", 0) - 2;  // 退回到\r\n的位置
+    string hashLine = input_buffer.substr(hashStart, hashEnd - hashStart);
+
+    // ----------循环解析所有的key-value并给message赋值------------
+    while (input_buffer.size())
+    {
+        int start = 0, end = 0; // 所要查找的字段值的开始和结束
+        // 找到字段的key
+        start = input_buffer.find(
+                                  "Content-Disposition: form-data; name=\"",
+                                  index
+                                  ); // 获取key的位置
+        if (start >= 0) // 如果找到，计算出key所在的下标
+        {
+            result = RES_OK;
+
+            start += string("Content-Disposition: form-data; name=\"").size();
+            end = input_buffer.find("\"", start); // 找到key的结束引号
+
+            string key = input_buffer.substr(start, end - start);
+            index = end;
+
+            // 找到该key对应的value
+            if (key != "file") // key不为file时使用常规处理方式
+            {
+                start = input_buffer.find("Content-Transfer-Encoding: 8bit", index);
+                start += string("Content-Transfer-Encoding: 8bit").size() + 4; // 跳过换行
+                end = input_buffer.find(hashLine, start) - 2;  // 退回到\r\n的位置
+
+                message->assign(key, input_buffer.substr(start, end - start));
+                cout<<key<<":"<<input_buffer.substr(start, end - start)<<endl;
+                index = end;
+            }
+            else // key为file时需要处理filename
+            {
+                // 获取filename的值
+                start = input_buffer.find("filename=\"", index);
+                start += string("filename=\"").size();
+                end = input_buffer.find("\"", start);
+
+                message->assign("filename", input_buffer.substr(start, end - start));
+                cout<<"filename:"<<input_buffer.substr(start, end - start)<<endl;
+                index = end;
+
+                // 获取文件内容
+                start = input_buffer.find("Content-Transfer-Encoding: binary", index);
+                start += string("Content-Transfer-Encoding: binary").size() + 4; // 跳过换行
+                end = input_buffer.find(hashLine, start) - 2;  // 退回到\r\n的位置
+
+                message->assign("fileContent", input_buffer.substr(start, end - start));
+                cout<<"fileContent"<<":"<<input_buffer.substr(start, end - start)<<endl;
+                index = end;
+            }
+        }
+        else {
+            break;
+        }
+    }  // while
+
+    return result;
 }
