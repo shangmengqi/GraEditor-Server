@@ -23,7 +23,7 @@
 #include <string>
 //#include "../Global.hpp"
 class HTTPMessage;
-class VersionModule;
+class Module;
 
 class NetLayer {
 public:
@@ -31,7 +31,7 @@ public:
     NetLayer(const NetLayer& orig);
     virtual ~NetLayer();
     // 初始化网络参数
-    int init();
+    int initHTTPServer(std::string ip, int port);
     // 开始循环处理
     void startLoop();
     // root地址请求处理
@@ -51,8 +51,8 @@ public:
     // 超时长度
     int _timeout = 5;
 
-    // 该网络层所关联的版本控制模块
-    VersionModule* versionModule;
+    // 该网络层所关联的模块
+    Module* module;
     
     
 private:

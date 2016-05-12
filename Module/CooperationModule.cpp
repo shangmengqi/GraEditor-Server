@@ -16,7 +16,13 @@
 
 #include "CooperationModule.h"
 
-CooperationModule::CooperationModule()
+#include "../Net/NetLayer.h"
+#include "../Control/ControlLayer.h"
+#include "../Control/CooperControlLayer.h"
+#include "../Model/ModelLayer.h"
+#include "../Global.hpp"
+
+CooperationModule::CooperationModule() : Module()
 {
 }
 
@@ -28,3 +34,18 @@ CooperationModule::~CooperationModule()
 {
 }
 
+int CooperationModule::init()
+{
+    return RES_OK;
+}
+
+/**
+* 处理HTTPMessage消息，并给出处理结果
+* @param message 需要处理的消息
+* @param filenames 处理结果涉及的多个文件路径名称（如果有文件）
+* @return 处理结果
+*/
+std::string CooperationModule::handleMessage(HTTPMessage message, vector<std::string>& filenames)
+{
+    return "";
+}

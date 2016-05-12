@@ -61,12 +61,15 @@
     <logicalFolder name="HeaderFiles" displayName="头文件" projectFiles="true">
       <logicalFolder name="f2" displayName="Control" projectFiles="true">
         <itemPath>Control/ControlLayer.h</itemPath>
+        <itemPath>Control/CooperControlLayer.h</itemPath>
+        <itemPath>Control/VersionControlLayer.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Model" projectFiles="true">
         <itemPath>Model/ModelLayer.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="Module" projectFiles="true">
         <itemPath>Module/CooperationModule.h</itemPath>
+        <itemPath>Module/Module.h</itemPath>
         <itemPath>Module/VersionModule.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="Net" projectFiles="true">
@@ -77,12 +80,15 @@
     <logicalFolder name="SourceFiles" displayName="源文件" projectFiles="true">
       <logicalFolder name="f2" displayName="Control" projectFiles="true">
         <itemPath>Control/ControlLayer.cpp</itemPath>
+        <itemPath>Control/CooperControlLayer.cpp</itemPath>
+        <itemPath>Control/VersionControlLayer.cpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Model" projectFiles="true">
         <itemPath>Model/ModelLayer.cpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="Module" projectFiles="true">
         <itemPath>Module/CooperationModule.cpp</itemPath>
+        <itemPath>Module/Module.cpp</itemPath>
         <itemPath>Module/VersionModule.cpp</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="Net" projectFiles="true">
@@ -132,6 +138,14 @@
       </item>
       <item path="Control/ControlLayer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="Control/CooperControlLayer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Control/CooperControlLayer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Control/VersionControlLayer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Control/VersionControlLayer.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Global.hpp" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Model/ModelLayer.cpp" ex="false" tool="1" flavor2="0">
@@ -141,6 +155,10 @@
       <item path="Module/CooperationModule.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Module/CooperationModule.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Module/Module.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Module/Module.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Module/VersionModule.cpp" ex="false" tool="1" flavor2="0">
       </item>
@@ -395,6 +413,14 @@
       </item>
       <item path="Control/ControlLayer.h" ex="false" tool="3" flavor2="0">
       </item>
+      <item path="Control/CooperControlLayer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Control/CooperControlLayer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Control/VersionControlLayer.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Control/VersionControlLayer.h" ex="false" tool="3" flavor2="0">
+      </item>
       <item path="Global.hpp" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Model/ModelLayer.cpp" ex="false" tool="1" flavor2="0">
@@ -404,6 +430,10 @@
       <item path="Module/CooperationModule.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Module/CooperationModule.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Module/Module.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Module/Module.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Module/VersionModule.cpp" ex="false" tool="1" flavor2="0">
       </item>

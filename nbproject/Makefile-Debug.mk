@@ -36,8 +36,11 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/Control/ControlLayer.o \
+	${OBJECTDIR}/Control/CooperControlLayer.o \
+	${OBJECTDIR}/Control/VersionControlLayer.o \
 	${OBJECTDIR}/Model/ModelLayer.o \
 	${OBJECTDIR}/Module/CooperationModule.o \
+	${OBJECTDIR}/Module/Module.o \
 	${OBJECTDIR}/Module/VersionModule.o \
 	${OBJECTDIR}/Net/NetLayer.o \
 	${OBJECTDIR}/main.o
@@ -72,6 +75,16 @@ ${OBJECTDIR}/Control/ControlLayer.o: Control/ControlLayer.cpp
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -IThirdpart/sdbdriver/include -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Control/ControlLayer.o Control/ControlLayer.cpp
 
+${OBJECTDIR}/Control/CooperControlLayer.o: Control/CooperControlLayer.cpp 
+	${MKDIR} -p ${OBJECTDIR}/Control
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -IThirdpart/sdbdriver/include -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Control/CooperControlLayer.o Control/CooperControlLayer.cpp
+
+${OBJECTDIR}/Control/VersionControlLayer.o: Control/VersionControlLayer.cpp 
+	${MKDIR} -p ${OBJECTDIR}/Control
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -IThirdpart/sdbdriver/include -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Control/VersionControlLayer.o Control/VersionControlLayer.cpp
+
 ${OBJECTDIR}/Model/ModelLayer.o: Model/ModelLayer.cpp 
 	${MKDIR} -p ${OBJECTDIR}/Model
 	${RM} "$@.d"
@@ -81,6 +94,11 @@ ${OBJECTDIR}/Module/CooperationModule.o: Module/CooperationModule.cpp
 	${MKDIR} -p ${OBJECTDIR}/Module
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -IThirdpart/sdbdriver/include -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Module/CooperationModule.o Module/CooperationModule.cpp
+
+${OBJECTDIR}/Module/Module.o: Module/Module.cpp 
+	${MKDIR} -p ${OBJECTDIR}/Module
+	${RM} "$@.d"
+	$(COMPILE.cc) -g -IThirdpart/sdbdriver/include -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Module/Module.o Module/Module.cpp
 
 ${OBJECTDIR}/Module/VersionModule.o: Module/VersionModule.cpp 
 	${MKDIR} -p ${OBJECTDIR}/Module

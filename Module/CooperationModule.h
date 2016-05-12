@@ -17,11 +17,25 @@
 #ifndef COOPERATIONMODULE_H
 #define COOPERATIONMODULE_H
 
-class CooperationModule {
+#include "Module.h"
+
+class CooperationModule : public Module {
 public:
     CooperationModule();
     CooperationModule(const CooperationModule& orig);
     virtual ~CooperationModule();
+
+    virtual int init() override;
+
+    /**
+     * 处理HTTPMessage消息，并给出处理结果
+     * @param message 需要处理的消息
+     * @param filenames 处理结果涉及的多个文件路径名称（如果有文件）
+     * @return 处理结果
+     */
+    virtual std::string handleMessage(
+            HTTPMessage message,
+            std::vector<std::string>& filenames) override;
 private:
 
 };

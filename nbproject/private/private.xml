@@ -8,10 +8,13 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/home/cyf/NetBeansProjects/GraEditor-Server/Net/NetLayer.cpp</file>
-            <file>file:/home/cyf/NetBeansProjects/GraEditor-Server/main.cpp</file>
+            <file>file:/home/cyf/NetBeansProjects/GraEditor-Server/Module/Module.h</file>
+            <file>file:/home/cyf/NetBeansProjects/GraEditor-Server/Module/VersionModule.h</file>
             <file>file:/home/cyf/NetBeansProjects/GraEditor-Server/Net/NetLayer.h</file>
-            <file>file:/home/cyf/NetBeansProjects/GraEditor-Server/Global.hpp</file>
-            <file>file:/home/cyf/NetBeansProjects/GraEditor-Server/Model/ModelLayer.cpp</file>
+            <file>file:/home/cyf/NetBeansProjects/GraEditor-Server/Module/CooperationModule.cpp</file>
+            <file>file:/home/cyf/NetBeansProjects/GraEditor-Server/Module/CooperationModule.h</file>
+            <file>file:/home/cyf/NetBeansProjects/GraEditor-Server/Module/Module.cpp</file>
+            <file>file:/home/cyf/NetBeansProjects/GraEditor-Server/Module/VersionModule.cpp</file>
         </group>
     </open-files>
 </project-private>

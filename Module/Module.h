@@ -3,29 +3,39 @@
  * 主要功能：
  */
 
-/* 
- * 文件:   VersionModule.h
- * 创建者: Chen Yufei
+/*
+ * 文件:   Module.cpp
+ * 创建者: cyf
  *
- * 创建于 2016年4月27日, 上午10:20
- * 
+ * 创建于 2016年5月11日, 上午10:59
+ *
  * 修改者1：[请填写]
- * 
+ *
  * 最后修改于 [请填写]
  */
 
-#ifndef VERSIONMODULE_H
-#define VERSIONMODULE_H
+#ifndef MODULE_H
+#define MODULE_H
 
-#include "Module.h"
+#include <string>
+#include <vector>
 
-class VersionModule : public Module {
+class NetLayer;
+class ControlLayer;
+class ModelLayer;
+class HTTPMessage;
+
+class Module {
 public:
-    VersionModule();
-    VersionModule(const VersionModule& orig);
-    virtual ~VersionModule();
+    Module();
+    Module(const Module& orig);
+    virtual ~Module();
 
-    virtual int init() override;
+    NetLayer* netLayer;
+    ControlLayer* controlLayer;
+    ModelLayer* modelLayer;
+
+    virtual int init() = 0;
 
     /**
      * 处理HTTPMessage消息，并给出处理结果
@@ -36,12 +46,11 @@ public:
     virtual std::string handleMessage(
             HTTPMessage message,
             std::vector<std::string>& filenames
-            ) override;
-
+            ) = 0;
 
 private:
 
 };
 
-#endif /* VERSIONMODULE_H */
+#endif /* MODULE_H */
 

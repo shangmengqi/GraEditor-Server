@@ -13,6 +13,11 @@
 #include "../Global.hpp"
 #include <iostream>
 #include <string.h>
+#include <vector>
+#include "../Module/Module.h"
+#include <sys/stat.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 using namespace std;
 
@@ -31,8 +36,10 @@ NetLayer::~NetLayer()
 
 // 初始化网络参数
 
-int NetLayer::init()
+int NetLayer::initHTTPServer(string ip, int port)
 {
+    this->_ip = ip;
+    this->_port = port;
     // 初始化http
     this->base = event_base_new();
     this->httpServer = evhttp_new(base);
@@ -95,14 +102,40 @@ void NetLayer::rootRequestHandler(evhttp_request* req, void* arg)
      * 区分message中的command类型，决定200 OK 附带的返回内容
      * 如果需要进行文件内容比对，则交给versionModule中的控制层相关函数
      */
+    vector<string> filenames;
+    returnPrint = layer->module->handleMessage(message, filenames);
 
     // 创建回复
     struct evbuffer *buf;
-
     buf = evbuffer_new();
     if (buf == NULL)
         err(1, "failed to create response buffer");
+
+    // 添加回复语句
     evbuffer_add_printf(buf, returnPrint.data());
+
+    // 如果filenames不为空，则打开filenames指定的所有文件并add到回复中
+    int filecount = filenames.size();
+    for(int i=0;i<filecount;i++)
+    {
+        // 打开文件
+        int fd;
+        fd = open(filenames[i].c_str(), O_RDONLY);
+
+        // 如果打开成功，则添加到回复中
+        if(fd >= 0)
+        {
+            // 获取文件信息
+            struct stat st;
+            fstat(fd, &st);
+            
+            // 添加到回复
+            evbuffer_add_file(buf,fd,0,st.st_size);
+            close(fd);
+        }
+    }
+
+    // 发送回复
     evhttp_send_reply(req, HTTP_OK, "OK", buf);
 }
 
