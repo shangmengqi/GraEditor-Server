@@ -18,6 +18,8 @@
 #define GLOBAL_HPP
 
 #include <err.h>
+#include <iostream>
+#include <sstream>
 
 #define RES_OK      0x00;
 #define RES_ERROR   0x01;
@@ -25,11 +27,25 @@
 class HTTPMessage
 {
 public:
-    std::string command = "";  // 指令，pull或push
+    std::string command = "";  // 指令，pull, push, compare
     std::string commit = "";  // 提交的版本hash值
-    //std::string content_disposition = "";  // Content-Disposition字段的name值
+    std::string base = "";  //
+    std::string description = "";  //
+    int filecount = 0;  //
     std::string fileName = "";  // 文件名，如果有文件
     std::string fileContent = "";  // 文件内容
+    std::string step = "";  // push||compare:start, 1~n, result; pull:log, all;
+    std::string state = "";  //
+
+    HTTPMessage()
+    {
+        std::cout<<"http message"<<std::endl;
+    }
+
+    virtual ~HTTPMessage() {
+
+    }
+
 
     /**
      * 根据不同的key，给该实例中的变量赋值
@@ -47,6 +63,21 @@ public:
         {
             this->commit = value;
         }
+        else if(key == "base")
+        {
+            this->base = value;
+        }
+        else if(key == "description")
+        {
+            this->description = value;
+        }
+        else if(key == "filecount")
+        {
+            std::stringstream ss;
+            ss<<value;
+            ss>>this->filecount;
+            ss.clear();
+        }
         else if(key == "filename")
         {
             this->fileName = value;
@@ -54,6 +85,14 @@ public:
         else if(key == "fileContent")
         {
             this->fileContent = value;
+        }
+        else if(key == "step")
+        {
+            this->step = value;
+        }
+        else if(key == "state")
+        {
+            this->state = value;
         }
         else
         {

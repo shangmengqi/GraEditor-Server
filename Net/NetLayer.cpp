@@ -94,6 +94,7 @@ void NetLayer::rootRequestHandler(evhttp_request* req, void* arg)
     //将input buffer传入decodePost中解析，获取结果
     HTTPMessage message;
     layer->decodePost(out, &message);
+    cout<<"decode over"<<endl;
 
     std::string returnPrint = "root!\n";  // 用于回复客户端的消息
 
@@ -103,6 +104,7 @@ void NetLayer::rootRequestHandler(evhttp_request* req, void* arg)
      * 如果需要进行文件内容比对，则交给versionModule中的控制层相关函数
      */
     vector<string> filenames;
+    cout<<"handle start"<<endl;
     returnPrint = layer->module->handleMessage(message, filenames);
 
     // 创建回复
@@ -118,6 +120,7 @@ void NetLayer::rootRequestHandler(evhttp_request* req, void* arg)
     int filecount = filenames.size();
     for(int i=0;i<filecount;i++)
     {
+        cout<<"open"<<endl;
         // 打开文件
         int fd;
         fd = open(filenames[i].c_str(), O_RDONLY);
@@ -125,6 +128,7 @@ void NetLayer::rootRequestHandler(evhttp_request* req, void* arg)
         // 如果打开成功，则添加到回复中
         if(fd >= 0)
         {
+            cout<<"open succeed"<<endl;
             // 获取文件信息
             struct stat st;
             fstat(fd, &st);

@@ -54,6 +54,10 @@ int VersionModule::init()
 */
 std::string VersionModule::handleMessage(HTTPMessage message, vector<std::string>& filenames)
 {
+    cout<<"handle message"<<endl;
+    filenames.push_back("/home/cyf/testfiles/test.txt");
+    filenames.push_back("/home/cyf/testfiles/ttt");
+    filenames.push_back("/home/cyf/testfiles/test.txt");
     return "OK";
 }
 
