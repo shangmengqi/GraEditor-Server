@@ -1,0 +1,52 @@
+key前面带有“-”说明是该节点的属性，服务器不需要关心的属性和节点不列出
+{
+	"description": {  // 用于描述文件头（对应xmi:XMI）
+		"-nskey": "usecase",
+		"-nsvalue":"http://www.example.org/usecase", // 这两个key和value服务器不需要关心
+		"diagram": { // 开始图表的描述
+      		"style": { // 用于描述样式、位置、大小等信息（对应graphicsAlgorithm）
+
+      		},
+      		"node": [ // 图形节点（对应type为ContainerShape的children）
+      			{
+      				"properties": [
+      					{
+      						"-key":"shape_id",
+      						"-value":"page-1461747598927" // 图像元素id
+      					},
+      				],
+      				"style": {
+
+      				},
+      				"link": {
+      					"-businessObjects": ""
+      				},
+      				"anchors": {
+      					"-outgoingConnections": "",
+      					"-incomingConnections": ""
+      				},
+                              "ext": [ // 存放text和线条的
+
+                              ],
+                              "node": [
+
+                              ],
+                              "nodelist":[ // 这一级的所有node的id
+
+                              ]
+      			},
+      		],
+                  "nodelist":[ // 这一级的所有node的id
+
+                  ]
+                  "connections": [ // 能否插入property
+                        "-start": {},// 改成使用ID进行标识
+                        "-end": {},
+                        "style": {}
+                  ],
+                  "colors": [
+                        // 添加编号
+                  ]
+		}
+	}
+}

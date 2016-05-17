@@ -1,0 +1,25 @@
+conflict
+{ 
+	"conflict_node":[
+		{
+			"shape_id": "",
+			"isDeleted": "", // false：该节点没有被删除；如被删除，则用该版本的编号填写
+			"conflict_key": ["attr_name_1",], // 冲突的属性名，
+			"attr_name_1": "", // 上面的数组有多少，此处的属性就有多少
+		}
+	]
+} 
+
+merged
+{ 
+	"merged_node": [
+		{
+			"action": "" // add, delete, modify
+			"object": "" // node, connection, attr_name。node的话去找shape_id，connection的话找start和end，否则是一个属性名，根据shape_id和属性名作为key去找原本的属性值
+			"shape_id": ""
+			"start": ""
+			"end": ""
+			"attr_name": "原本的值"
+		}
+	]
+}
