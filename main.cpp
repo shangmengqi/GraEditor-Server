@@ -19,7 +19,7 @@
 #include <iostream>
 #include <string>
 #include <event.h>
-#include "client.hpp"
+//#include "client.hpp"
 
 #include "Net/NetLayer.h"
 #include "Module/VersionModule.h"
@@ -29,14 +29,18 @@
 #include "Model/ModelLayer.h"
 
 using namespace std ;
-using namespace sdbclient ;
-using namespace bson ;
+//using namespace sdbclient ;
+//using namespace bson ;
 
 /*
  * 
  */
 int main(int argc, char** argv)
 {
+    // ---------------test-----------
+
+
+
     // ------------声明--------------
     // 声明各个模块
     VersionModule versionModule;

@@ -19,11 +19,11 @@
 
 #include <string>
 #include <iostream>
-#include "client.hpp"
+#include "client.hpp"  // SequoiaDB
 
 using namespace std;
-using namespace sdbclient;
-using namespace bson;
+using namespace sdbclient;  // SequoiaDB
+using namespace bson;  // SequoiaDB
 
 
 class ModelLayer {

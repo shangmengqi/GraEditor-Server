@@ -38,11 +38,12 @@ VersionModule::~VersionModule()
 
 int VersionModule::init()
 {
-    netLayer->module = this;
-    /*
-     * TODO:
-     * 将this注入控制层
-     */
+    // 将this指针注入当前模块包含的网络层和控制层
+    if(netLayer)
+        netLayer->module = this;
+    if(controlLayer)
+        controlLayer->module = this;
+
     return RES_OK;
 }
 
@@ -55,6 +56,9 @@ int VersionModule::init()
 std::string VersionModule::handleMessage(HTTPMessage message, vector<std::string>& filenames)
 {
     cout<<"handle message"<<endl;
+    // 交给控制层函数
+
+    // 返回结果
     filenames.push_back("/home/cyf/testfiles/test.txt");
     filenames.push_back("/home/cyf/testfiles/ttt");
     filenames.push_back("/home/cyf/testfiles/test.txt");

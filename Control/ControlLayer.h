@@ -17,11 +17,25 @@
 #ifndef CONTROLLAYER_H
 #define CONTROLLAYER_H
 
+#include <string>
+#include <vector>
+
+class Module;
+class HTTPMessage;
+
 class ControlLayer {
 public:
     ControlLayer();
     ControlLayer(const ControlLayer& orig);
     virtual ~ControlLayer();
+
+    virtual std::string handleMessage(
+            HTTPMessage message,
+            std::vector<std::string>& filenames
+            ) = 0;
+
+    // 该控制层所关联的模块
+    Module* module;
 private:
 
 };
