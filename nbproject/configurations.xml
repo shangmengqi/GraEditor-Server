@@ -2,9 +2,48 @@
 <configurationDescriptor version="97">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <logicalFolder name="Thirdpart" displayName="Thirdpart" projectFiles="true">
-      <logicalFolder name="f1" displayName="json11" projectFiles="true">
-        <itemPath>Thirdpart/json11/json11.cpp</itemPath>
-        <itemPath>Thirdpart/json11/json11.hpp</itemPath>
+      <logicalFolder name="rapidjson" displayName="rapidjson" projectFiles="true">
+        <logicalFolder name="error" displayName="error" projectFiles="true">
+          <itemPath>Thirdpart/rapidjson/error/en.h</itemPath>
+          <itemPath>Thirdpart/rapidjson/error/error.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="internal" displayName="internal" projectFiles="true">
+          <itemPath>Thirdpart/rapidjson/internal/biginteger.h</itemPath>
+          <itemPath>Thirdpart/rapidjson/internal/diyfp.h</itemPath>
+          <itemPath>Thirdpart/rapidjson/internal/dtoa.h</itemPath>
+          <itemPath>Thirdpart/rapidjson/internal/ieee754.h</itemPath>
+          <itemPath>Thirdpart/rapidjson/internal/itoa.h</itemPath>
+          <itemPath>Thirdpart/rapidjson/internal/meta.h</itemPath>
+          <itemPath>Thirdpart/rapidjson/internal/pow10.h</itemPath>
+          <itemPath>Thirdpart/rapidjson/internal/regex.h</itemPath>
+          <itemPath>Thirdpart/rapidjson/internal/stack.h</itemPath>
+          <itemPath>Thirdpart/rapidjson/internal/strfunc.h</itemPath>
+          <itemPath>Thirdpart/rapidjson/internal/strtod.h</itemPath>
+          <itemPath>Thirdpart/rapidjson/internal/swap.h</itemPath>
+        </logicalFolder>
+        <logicalFolder name="msinttypes" displayName="msinttypes" projectFiles="true">
+          <itemPath>Thirdpart/rapidjson/msinttypes/inttypes.h</itemPath>
+          <itemPath>Thirdpart/rapidjson/msinttypes/stdint.h</itemPath>
+        </logicalFolder>
+        <itemPath>Thirdpart/rapidjson/allocators.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/document.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/encodedstream.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/encodings.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/filereadstream.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/filewritestream.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/fwd.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/istreamwrapper.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/memorybuffer.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/memorystream.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/ostreamwrapper.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/pointer.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/prettywriter.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/rapidjson.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/reader.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/schema.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/stream.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/stringbuffer.h</itemPath>
+        <itemPath>Thirdpart/rapidjson/writer.h</itemPath>
       </logicalFolder>
       <logicalFolder name="sdbdriver" displayName="sdbdriver" projectFiles="true">
         <logicalFolder name="include" displayName="include" projectFiles="true">
@@ -172,9 +211,132 @@
       </item>
       <item path="Net/NetLayer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="Thirdpart/json11/json11.cpp" ex="false" tool="1" flavor2="0">
+      <item path="Thirdpart/rapidjson/allocators.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="Thirdpart/json11/json11.hpp" ex="false" tool="3" flavor2="0">
+      <item path="Thirdpart/rapidjson/document.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/encodedstream.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/encodings.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/error/en.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/error/error.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/filereadstream.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/filewritestream.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/fwd.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/biginteger.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/diyfp.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/dtoa.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/ieee754.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/itoa.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/meta.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/pow10.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/regex.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/stack.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/strfunc.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/strtod.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/swap.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/istreamwrapper.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/memorybuffer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/memorystream.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/msinttypes/inttypes.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/msinttypes/stdint.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/ostreamwrapper.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/pointer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/prettywriter.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/rapidjson.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/reader.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/schema.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/stream.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/stringbuffer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/writer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Thirdpart/sdbdriver/include/base64c.h"
             ex="false"
@@ -451,9 +613,132 @@
       </item>
       <item path="Net/NetLayer.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="Thirdpart/json11/json11.cpp" ex="false" tool="1" flavor2="0">
+      <item path="Thirdpart/rapidjson/allocators.h" ex="false" tool="3" flavor2="0">
       </item>
-      <item path="Thirdpart/json11/json11.hpp" ex="false" tool="3" flavor2="0">
+      <item path="Thirdpart/rapidjson/document.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/encodedstream.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/encodings.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/error/en.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/error/error.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/filereadstream.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/filewritestream.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/fwd.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/biginteger.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/diyfp.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/dtoa.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/ieee754.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/itoa.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/meta.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/pow10.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/regex.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/stack.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/strfunc.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/strtod.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/internal/swap.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/istreamwrapper.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/memorybuffer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/memorystream.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/msinttypes/inttypes.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/msinttypes/stdint.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/ostreamwrapper.h"
+            ex="false"
+            tool="3"
+            flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/pointer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/prettywriter.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/rapidjson.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/reader.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/schema.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/stream.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/stringbuffer.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Thirdpart/rapidjson/writer.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="Thirdpart/sdbdriver/include/base64c.h"
             ex="false"

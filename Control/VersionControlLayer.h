@@ -22,34 +22,51 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include "../Thirdpart/rapidjson/document.h"  // rapidjson
+#include "../Thirdpart/rapidjson/stringbuffer.h"  // rapidjson
+#include "../Thirdpart/rapidjson/writer.h"  // rapidjson
 
 class Mission
 {
 public:
-    //
+    // 表示该任务是否需要进行比较，push指令创建该任务时根据hash值决定，之后每个push处理线程都要检查该值
     bool needCompare = false;
-    //
+    
+    // 该任务所基于的基础版本hash
     std::string base = "";
-    //
+    
+    // 表示该任务最多有多少步骤，任务创建时赋值
     int stepWhole = 0;
 
-    //
+    // 每个线程执行完后执行一遍
     void stepForward()
     {
         //_lock.lock();
         stepNow++;
         //_lock.unlock();
     }
-    //
+    
+    // 判断该任务是否已经完成
     bool isOver()
     {
         return stepNow == stepWhole;
     }
+
+    // 向任务中添加一个文件名
+    bool addFile(std::string filename)
+    {
+        filenames.push_back(filename);
+        return true;
+    }
+
+
 private:
     //
     std::atomic_int stepNow{0};
     //
     //std::mutex _lock;
+
+    std::vector<std::string> filenames;
 };
 
 class VersionControlLayer : public ControlLayer{
@@ -65,10 +82,12 @@ public:
 
     // 子线程执行，处理push-start命令，创建mission
     void handlePushStart(HTTPMessage message);
+
     // 子线程执行，处理push的文件
     // 如果mission提示是新版本，则直接存入数据库
     // 如果mission提示是可能冲突的版本，则进行比较
     void handlePushFile(HTTPMessage message);
+    
     // 直接执行，处理push-result命令
     // 返回协议指定内容
     std::string handlePushResult(
@@ -93,13 +112,22 @@ public:
 
     // save to filename.conflict    e.g. test.xml.conflict
     int compareFile(std::string file1, std::string file2, std::string filename);
-    // save to filename.conflict and filename.merge; if no conflict, save as bson into DB
-    int mergeFile(std::string file1, std::string file2, std::string filename);
+    // save to filename.merge; if no conflict, save as bson into DB
+    int mergeFile(std::string file0, std::string file1, std::string file2, std::string filename);
 
 private:
+    // 保存任务，key为任务对应的hash串
     std::map<std::string, Mission> missionMap;
+
+    // 寻找指定id的节点
+    int findNodeByID(rapidjson::Value& nodes, std::string id);
+    // 比较两个节点当中的某个属性是否相同
+    bool compareProperty(rapidjson::Value& node1, rapidjson::Value& node2, std::string name);
+    // 比较两个节点以及其所有字节点是否相同
+    bool diffNodeTree(rapidjson::Value& node1, rapidjson::Value& node2);
+    // cpy connections from src_doc to dst_doc, connections are chosen by anchors["incomming"] and anchors["outgoing"]
+    bool cpyConnections(rapidjson::Document& src_doc, rapidjson::Document& dst_doc, rapidjson::Value& anchors);
 
 };
 
 #endif /* VERSIONCONTROLLAYER_H */
-

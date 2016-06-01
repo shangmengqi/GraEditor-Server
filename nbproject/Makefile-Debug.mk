@@ -43,7 +43,6 @@ OBJECTFILES= \
 	${OBJECTDIR}/Module/Module.o \
 	${OBJECTDIR}/Module/VersionModule.o \
 	${OBJECTDIR}/Net/NetLayer.o \
-	${OBJECTDIR}/Thirdpart/json11/json11.o \
 	${OBJECTDIR}/main.o
 
 
@@ -110,11 +109,6 @@ ${OBJECTDIR}/Net/NetLayer.o: Net/NetLayer.cpp
 	${MKDIR} -p ${OBJECTDIR}/Net
 	${RM} "$@.d"
 	$(COMPILE.cc) -g -IThirdpart/sdbdriver/include -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Net/NetLayer.o Net/NetLayer.cpp
-
-${OBJECTDIR}/Thirdpart/json11/json11.o: Thirdpart/json11/json11.cpp 
-	${MKDIR} -p ${OBJECTDIR}/Thirdpart/json11
-	${RM} "$@.d"
-	$(COMPILE.cc) -g -IThirdpart/sdbdriver/include -std=c++11 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Thirdpart/json11/json11.o Thirdpart/json11/json11.cpp
 
 ${OBJECTDIR}/main.o: main.cpp 
 	${MKDIR} -p ${OBJECTDIR}
