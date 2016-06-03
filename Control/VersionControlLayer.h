@@ -122,11 +122,13 @@ private:
     // 寻找指定id的节点
     int findNodeByID(rapidjson::Value& nodes, std::string id);
     // 比较两个节点当中的某个属性是否相同
-    bool compareProperty(rapidjson::Value& node1, rapidjson::Value& node2, std::string name);
+    bool compareProperty(rapidjson::Value& node1, rapidjson::Value& node2, std::string name, std::string& val);
     // 比较两个节点以及其所有字节点是否相同
     bool diffNodeTree(rapidjson::Value& node1, rapidjson::Value& node2);
     // cpy connections from src_doc to dst_doc, connections are chosen by anchors["incomming"] and anchors["outgoing"]
     bool cpyConnections(rapidjson::Document& src_doc, rapidjson::Document& dst_doc, rapidjson::Value& anchors);
+    //
+    bool removeConnections(rapidjson::Document& dst_doc, rapidjson::Value& anchors);
 
 };
 

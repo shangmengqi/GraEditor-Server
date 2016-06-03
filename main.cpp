@@ -60,7 +60,7 @@ int main(int argc, char** argv)
     Value cp;
     cp.CopyFrom(a1, doc1.GetAllocator());
     array.PushBack(cp, doc1.GetAllocator());
-    cp.CopyFrom(a1, doc1.GetAllocator());
+    cp.CopyFrom(array[0], doc1.GetAllocator());
     array.PushBack(cp, doc1.GetAllocator());
     cp.CopyFrom(a2, doc1.GetAllocator());
     array.PushBack(cp, doc1.GetAllocator());
@@ -69,6 +69,13 @@ int main(int argc, char** argv)
     doc1.AddMember("array",array, doc1.GetAllocator());
     if(doc1.HasMember("bbb"))
         Value& nil = doc1["bbb"];
+
+//    // delete a member from array
+//    Value& test = doc1["array"];
+//    auto it = test.Begin();
+//    it++;
+//    it++;
+//    test.Erase(it);
 
     StringBuffer buffer;
     Writer<StringBuffer> writer(buffer);

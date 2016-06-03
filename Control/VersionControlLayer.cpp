@@ -88,6 +88,14 @@ int VersionControlLayer::mergeFile(std::string file0,
                                    std::string file2,
                                    std::string filename)
 {
+    // 
+    Document conflictDoc, mergeDoc;
+    conflictDoc.SetObject();
+    mergeDoc.SetObject();
+    Value conflict_node, merged_node;
+    conflict_node.SetArray();
+    merged_node.SetArray();
+
     // parse into document
     Document doc0, doc1, doc2;
     doc0.Parse(file0.c_str());
@@ -120,9 +128,19 @@ int VersionControlLayer::mergeFile(std::string file0,
         assert((*nodelist1).IsArray());
         for(SizeType i = 0;i < (*nodelist1).Size(); i++)
         {
+            // to save conflict info
+            Value conflictNode_i(kObjectType);
+            Value conflict_key;
+            conflict_key.SetArray();
+
             // 获取 node[i]的id
             Value& id1_value = (*nodelist1)[i]["@shape_id"];
             string id1_string = id1_value.GetString();
+
+            // save id to conflictNode_i
+            Value temp;
+            temp.CopyFrom(id1_value, doc1.GetAllocator());
+            conflictNode_i.AddMember("shape_id", temp, conflictDoc.GetAllocator());
 
             // 在nodelist2中找到相同id的节点
             int j = findNodeByID((*nodelist2), id1_string);  // 返回找到的节点下标
@@ -145,22 +163,28 @@ int VersionControlLayer::mergeFile(std::string file0,
                 // <<<-----将子节点数组加入队列-------
 
                 // ------对比text------>>>
-                bool propertySame12 = compareProperty((*nodelist1)[i], (*nodelist2)[j], "text");
+                string text2 = "";
+                bool propertySame12 = compareProperty((*nodelist1)[i], (*nodelist2)[j], "text", text2);
                 // 如果不相同则需要各自检查相对于基础版本的变动情况
                 if(propertySame12 == false)
                 {
                     bool propertySame01 = false, propertySame02 = false;
 
                     // 比较0和1的text
-                    propertySame01 = compareProperty((*nodelist0)[i], (*nodelist1)[j], "text");
+                    string text1 = "";
+                    propertySame01 = compareProperty((*nodelist0)[i], (*nodelist1)[j], "text", text1);
 
                     // 比较0和2的text
-                    propertySame02 = compareProperty((*nodelist0)[i], (*nodelist2)[j], "text");
+                    text2 = "";
+                    propertySame02 = compareProperty((*nodelist0)[i], (*nodelist2)[j], "text", text2);
 
                     // 如果两者都发生变更，则冲突
                     if(propertySame01 == false && propertySame02 == false)
                     {
-                        // TODO: 记录冲突
+                        // 记录冲突
+                        conflict_key.PushBack(Value("text"), conflictDoc.GetAllocator());
+                        temp.SetString(text1.c_str(), text1.length());
+                        conflictNode_i.AddMember("text", temp, conflictDoc.GetAllocator());
                     }
                     // 如果1变了2没变，则用1覆盖2
                     else if(propertySame01 == false && propertySame02 == true)
@@ -182,22 +206,28 @@ int VersionControlLayer::mergeFile(std::string file0,
                 // <<<------对比text------
 
                 // ------对比跳转链接------>>>
-                propertySame12 = compareProperty((*nodelist1)[i], (*nodelist2)[j], "navi");
+                string navi2 = "";
+                propertySame12 = compareProperty((*nodelist1)[i], (*nodelist2)[j], "navi", navi2);
                 // 如果不相同则需要各自检查相对于基础版本的变动情况
                 if(propertySame12 == false)
                 {
                     bool propertySame01 = false, propertySame02 = false;
 
-                    // 比较0和1的text
-                    propertySame01 = compareProperty((*nodelist0)[i], (*nodelist1)[j], "navi");
+                    // 比较0和1的navi
+                    string navi1 = "";
+                    propertySame01 = compareProperty((*nodelist0)[i], (*nodelist1)[j], "navi", navi1);
 
-                    // 比较0和2的text
-                    propertySame02 = compareProperty((*nodelist0)[i], (*nodelist2)[j], "navi");
+                    // 比较0和2的navi
+                    navi2 = "";
+                    propertySame02 = compareProperty((*nodelist0)[i], (*nodelist2)[j], "navi", navi2);
 
                     // 如果两者都发生变更，则冲突
                     if(propertySame01 == false && propertySame02 == false)
                     {
-                        // TODO: 记录冲突
+                        // 记录冲突
+                        conflict_key.PushBack(Value("navi"), conflictDoc.GetAllocator());
+                        temp.SetString(navi1.c_str(), navi1.length());
+                        conflictNode_i.AddMember("navi", temp, conflictDoc.GetAllocator());
                     }
                     // 如果1变了2没变，则用1覆盖2
                     else if(propertySame01 == false && propertySame02 == true)
@@ -251,18 +281,68 @@ int VersionControlLayer::mergeFile(std::string file0,
                 }
                 else // 版本0没有这个节点，则这是1添加的节点
                 {
-                    // TODO: 合并:将该节点增加至diagram2,并将相关连线加入diagram2的connections数组
+                    // 合并:将该节点增加至diagram2,并将相关连线加入diagram2的connections数组
+                    // 该节点加入到nodelist2
+                    Value cp;
+                    cp.CopyFrom((*nodelist1)[i], doc1.GetAllocator());
+                    nodelist2->PushBack(cp, doc2.GetAllocator());
+
+                    // 相关连线加入doc["connection"]
+                    cpyConnections(doc1, doc2, (*nodelist1)[i]["anchors"]);
 
                     // TODO: record merge
                 }
-            }
+            }  // else
+
+            // save conflictNode_i to conflict_node array
+            conflict_node.PushBack(conflictNode_i, conflictDoc.GetAllocator());
+
         }  // for
         // <<<--------- nodelist1--------------
 
         // ------------ nodelist2----------->>>
-        for(SizeType j = 0;j < (*nodelist2).Size(); j++)
+        auto it = nodelist2->Begin();
+        for(SizeType j = 0;j < (*nodelist2).Size(); j++, it++)
         {
             // TODO: check list2
+            // 获取 node[j]的id
+            Value& id2_value = (*nodelist1)[j]["@shape_id"];
+            string id2_string = id2_value.GetString();
+
+            // 在nodelist1中找到相同id的节点
+            int i = findNodeByID((*nodelist1), id2_string);  // 返回找到的节点下标
+
+            if(i >= 0)  // 如果找到了相同节点
+            {
+                // nothing to do
+            }
+            else  // 如果nodelist2中没有找到相同节点，则从nodelist0中找，以确定节点的增删情况
+            {
+                // 在nodelist0中找到相同id的节点
+                int k = findNodeByID(*nodelist0, id2_string);  // 返回找到的节点下标
+
+                // 如果版本0存在该节点，则这是版本1删除的节点
+                if(k>=0)
+                {
+                    // 比较是否版本2相对版本0存在不同
+                    if(diffNodeTree((*nodelist2)[j], (*nodelist0)[k]))  // 存在删除冲突
+                    {
+                        // TODO: 在冲突文件中标注为删除冲突
+                    }
+                    else  // 不存在删除冲突
+                    {
+                        // TODO: 合并:删除版本2该节点 and 相关连线
+                        removeConnections(doc2, (*nodelist2)[j]["anchors"]);
+                        nodelist2->Erase(it);
+
+                        // TODO: record merge
+                    }
+                }
+                else  // added by 2
+                {
+                    // nothing to do
+                }
+            }  // else
         }  // for
 
         // 将刚处理完的nodelist弹出队列
@@ -273,6 +353,7 @@ int VersionControlLayer::mergeFile(std::string file0,
 
 
     // 将doc2和merge结果存下来
+    
 //    StringBuffer buffer;
 //    Writer<StringBuffer> writer(buffer);
 //    doc1.Accept(writer);
@@ -289,7 +370,7 @@ int VersionControlLayer::mergeFile(std::string file0,
  * @param id
  * @return
  */
-int VersionControlLayer::findNodeByID(Value& nodes,string id)
+int VersionControlLayer::findNodeByID(Value& nodes, string id)
 {
     bool found = false;
         SizeType j;
@@ -297,7 +378,7 @@ int VersionControlLayer::findNodeByID(Value& nodes,string id)
         {
             // 获取 node[j] 的id
             Value& id2_value = nodes[j]["@shape_id"];
-            string id2_string = id2_value.GetString();
+            string id2_string(id2_value.GetString());
 
             // 如果id相同，即找到相同节点
             if(id == id2_string)
@@ -314,9 +395,10 @@ int VersionControlLayer::findNodeByID(Value& nodes,string id)
  * @param node1
  * @param node2
  * @param name
+ * @param val node2's property value
  * @return
  */
-bool VersionControlLayer::compareProperty(Value& node1, Value& node2, string name)
+bool VersionControlLayer::compareProperty(Value& node1, Value& node2, string name, string& val)
 {
     // 在两个节点中分别找出指定属性值
 
@@ -333,10 +415,11 @@ bool VersionControlLayer::compareProperty(Value& node1, Value& node2, string nam
 bool VersionControlLayer::diffNodeTree(Value& node1, Value& node2)
 {
     // 如果该层节点的属性不一致，则返回true
-    if(compareProperty(node1, node2, "text") ||
-       compareProperty(node1, node2, "linkto") ||
-       compareProperty(node1, node2, "anchors") ||
-       compareProperty(node1, node2, "nodelist")
+    string temp = "";
+    if(compareProperty(node1, node2, "text", temp) ||
+       compareProperty(node1, node2, "linkto", temp) ||
+       compareProperty(node1, node2, "anchors", temp) ||
+       compareProperty(node1, node2, "nodelist", temp)
                        )
     {
         return true;
@@ -373,13 +456,133 @@ bool VersionControlLayer::cpyConnections(Document& src_doc, Document& dst_doc, V
     string incomming(v_incomming.GetString());
     string outgoing(v_outgoing.GetString());
 
-    // split ids from incomming
+    int start = 0, end = 0;
+    auto splitID = [&](string& from)->string
+    {
+        end = from.find(' ', start);
+        if(end != string::npos)
+        {
+            string result = from.substr(start, end-start);
+            start = end+1;
+            return result;
+        }
+        else
+            return from.substr(start, from.length()-start);
+    };
 
-    // for:find conn that has given id from doc1; if doc2 doesnt have this id, cpy conn to doc2
+    auto findSrcByID = [&](string cid)->int
+    {
+        for(SizeType i=0;i<src_conn.Size();i++)
+        {
+            Value& v_id2 = src_conn[i]["@conn_id"];
+            if(cid == string(v_id2.GetString()))
+                return i;
+        }
+        return -1;
+    };
 
-    // split ids from outgoing
+    auto findDstByID = [&](string cid)->int
+    {
+        for(SizeType i=0;i<dst_conn.Size();i++)
+        {
+            Value& v_id2 = dst_conn[i]["@conn_id"];
+            if(cid == string(v_id2.GetString()))
+                return i;
+        }
+        return -1;
+    };
 
-    // for:find conn that has given id from doc1; if doc2 doesnt have this id, cpy conn to doc2
+    // handle incomming
+    while(end != string::npos)
+    {
+        string id = splitID(incomming);
+
+        // find conn that has given id from doc1; if doc2 doesnt have this id, cpy conn to doc2
+        int conn1 = findSrcByID(id);
+        int conn2 = findDstByID(id);
+        if(conn2 < 0)  // cpy conn1 to dst_conn
+        {
+            Value temp;
+            temp.CopyFrom(src_conn[conn1], dst_doc.GetAllocator());
+            dst_conn.PushBack(temp, dst_doc.GetAllocator());
+        }
+    }
+    
+    start = 0;
+    end = 0;
+    // handle outgoing
+    while(end != string::npos)
+    {
+        string id = splitID(outgoing);
+        // find conn that has given id from doc1; if doc2 doesnt have this id, cpy conn to doc2
+        int conn1 = findSrcByID(id);
+        int conn2 = findDstByID(id);
+        if(conn2 < 0)  // cpy conn1 to dst_conn
+        {
+            Value temp;
+            temp.CopyFrom(src_conn[conn1], dst_doc.GetAllocator());
+            dst_conn.PushBack(temp, dst_doc.GetAllocator());
+        }
+    }
+
+    return true;
+}
+
+bool VersionControlLayer::removeConnections(Document& dst_doc, Value& anchors)
+{
+    Value& dst_conn = dst_doc["description"]["connections"];
+
+    Value& v_incomming = anchors["@incomingConnections"];
+    Value& v_outgoing = anchors["@outgoingConnections"];
+
+    string incomming(v_incomming.GetString());
+    string outgoing(v_outgoing.GetString());
+
+    int start = 0, end = 0;
+    auto splitID = [&](string& from)->string
+    {
+        end = from.find(' ', start);
+        if(end != string::npos)
+        {
+            string result = from.substr(start, end-start);
+            start = end+1;
+            return result;
+        }
+        else
+            return from.substr(start, from.length()-start);
+    };
+
+    auto removeFromDstByID = [&](string cid)->bool
+    {
+        for(auto it=dst_conn.Begin();it!=dst_conn.End();it++)
+        {
+            Value& v_id2 = (*it)["@conn_id"];
+            if(cid == string(v_id2.GetString()))
+            {
+                dst_conn.Erase(it);
+                return true;
+            }
+        }
+        return true;
+    };
+
+    // handle incomming
+    while(end != string::npos)
+    {
+        string id = splitID(incomming);
+
+        removeFromDstByID(id);
+    }
+
+    start = 0;
+    end = 0;
+    // handle outgoing
+    while(end != string::npos)
+    {
+        string id = splitID(outgoing);
+
+        removeFromDstByID(id);
+    }
 
     return true;
 }
