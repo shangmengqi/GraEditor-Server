@@ -85,7 +85,9 @@ int VersionControlLayer::compareFile(std::string file1, std::string file2,
 
 int VersionControlLayer::mergeFile(std::string file0,
                                    std::string file1,
+                                   std::string hash1,
                                    std::string file2,
+                                   std::string hash2,
                                    std::string filename)
 {
     // 
@@ -107,9 +109,9 @@ int VersionControlLayer::mergeFile(std::string file0,
     queue<Value*> nodeQueue2;
 
     // 获取nodelist
-    Value& n0 = doc0["description"]["diagram"]["node"];
-    Value& n1 = doc1["description"]["diagram"]["node"];
-    Value& n2 = doc2["description"]["diagram"]["node"];
+    Value& n0 = doc0["description"]["-diagram"]["node"];
+    Value& n1 = doc1["description"]["-diagram"]["node"];
+    Value& n2 = doc2["description"]["-diagram"]["node"];
 
     // 加入队列
     nodeQueue0.push(&n0);
@@ -130,8 +132,10 @@ int VersionControlLayer::mergeFile(std::string file0,
         {
             // to save conflict info
             Value conflictNode_i(kObjectType);
+            conflictNode_i.AddMember("isDeleted", Value("false"), conflictDoc.GetAllocator());
             Value conflict_key;
             conflict_key.SetArray();
+            bool conflictHappened = false;
 
             // 获取 node[i]的id
             Value& id1_value = (*nodelist1)[i]["@shape_id"];
@@ -152,7 +156,7 @@ int VersionControlLayer::mergeFile(std::string file0,
                 // 从nodelist0中取出该节点（1、2有共同节点，一定是从0继承的，0一定存在该点）
                 int k = findNodeByID((*nodelist0), id1_string);
                 
-                Value& subn0 = (*nodelist1)[k]["node"];
+                Value& subn0 = (*nodelist0)[k]["node"];
                 Value& subn1 = (*nodelist1)[i]["node"];
                 Value& subn2 = (*nodelist2)[j]["node"];
 
@@ -185,6 +189,7 @@ int VersionControlLayer::mergeFile(std::string file0,
                         conflict_key.PushBack(Value("text"), conflictDoc.GetAllocator());
                         temp.SetString(text1.c_str(), text1.length());
                         conflictNode_i.AddMember("text", temp, conflictDoc.GetAllocator());
+                        conflictHappened = true;
                     }
                     // 如果1变了2没变，则用1覆盖2
                     else if(propertySame01 == false && propertySame02 == true)
@@ -228,6 +233,7 @@ int VersionControlLayer::mergeFile(std::string file0,
                         conflict_key.PushBack(Value("navi"), conflictDoc.GetAllocator());
                         temp.SetString(navi1.c_str(), navi1.length());
                         conflictNode_i.AddMember("navi", temp, conflictDoc.GetAllocator());
+                        conflictHappened = true;
                     }
                     // 如果1变了2没变，则用1覆盖2
                     else if(propertySame01 == false && propertySame02 == true)
@@ -260,11 +266,14 @@ int VersionControlLayer::mergeFile(std::string file0,
                     // 比较是否版本1相对版本0存在不同
                     if(diffNodeTree((*nodelist1)[i], (*nodelist0)[k]))  // 存在删除冲突
                     {
-                        // 该节点原样存入doc2,并在冲突文件中标注为删除冲突
+                        // 该节点原样存入doc2, 在冲突文件中标注为删除冲突
                         // 该节点加入到nodelist2
                         Value cp;
                         cp.CopyFrom((*nodelist1)[i], doc1.GetAllocator());
                         nodelist2->PushBack(cp, doc2.GetAllocator());
+                        // 在冲突文件中标注为删除冲突
+                        Value& isDeleted = conflictNode_i["isDeleted"];
+                        isDeleted.SetString(hash2.c_str(), hash2.length());
 
                         // 相关连线加入doc["connection"]
                         cpyConnections(doc1, doc2, (*nodelist1)[i]["anchors"]);
@@ -295,7 +304,8 @@ int VersionControlLayer::mergeFile(std::string file0,
             }  // else
 
             // save conflictNode_i to conflict_node array
-            conflict_node.PushBack(conflictNode_i, conflictDoc.GetAllocator());
+            if(conflictHappened == true)
+                conflict_node.PushBack(conflictNode_i, conflictDoc.GetAllocator());
 
         }  // for
         // <<<--------- nodelist1--------------
@@ -360,6 +370,7 @@ int VersionControlLayer::mergeFile(std::string file0,
 //    // Output
 //    std::cout << buffer.GetString() << std::endl;
 
+    cout<<"return "<<endl;
     return 0;
 }
 
