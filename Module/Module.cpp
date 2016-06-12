@@ -18,7 +18,9 @@
 
 Module::Module()
 {
-
+    netLayer = NULL;
+    controlLayer = NULL;
+    modelLayer = NULL;
 }
 
 Module::Module(const Module& orig)
