@@ -53,19 +53,30 @@ int main(int argc, char** argv)
 //    doc2.Parse(file2.c_str());
 
     Value a1(kObjectType);
-    a1.AddMember("test1", Value(111), doc2.GetAllocator());
+    a1.AddMember("test1", Value(111).Move(), doc2.GetAllocator());
     Value a2(kObjectType);
-    a2.AddMember("test2", Value(222), doc2.GetAllocator());
+    a2.AddMember("test2", Value(222).Move(), doc2.GetAllocator());
 
     Value array;
     array.SetArray();
-//    Value cp;
-//    cp.CopyFrom(a1, doc1.GetAllocator());
-//    array.PushBack(cp, doc1.GetAllocator());
-//    cp.CopyFrom(array[0], doc1.GetAllocator());
-//    array.PushBack(cp, doc1.GetAllocator());
-//    cp.CopyFrom(a2, doc1.GetAllocator());
-//    array.PushBack(cp, doc1.GetAllocator());
+    Value cp;
+    cp.CopyFrom(a1, doc1.GetAllocator());
+    array.PushBack(cp, doc1.GetAllocator());
+    cp.CopyFrom(a2, doc1.GetAllocator());
+    array.PushBack(cp, doc1.GetAllocator());
+
+    Value array2(kArrayType);
+    array2.PushBack(array[1], doc1.GetAllocator());
+
+    for(auto it = array.Begin();it!=array.End();it++)
+    {
+        if(it->GetType() == kNullType)
+        {
+            it = array.Erase(it);
+            if(it == array.End())
+                break;
+        }
+    }
 
     doc1.AddMember("aaa", a1, doc1.GetAllocator());
     doc1.AddMember("array",array, doc1.GetAllocator());

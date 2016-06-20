@@ -18,6 +18,7 @@
 #include "../Global.hpp"
 
 #include <queue>
+#include <set>
 //#include <string>
 
 using namespace std;
@@ -94,9 +95,11 @@ int VersionControlLayer::mergeFile(std::string file0,
     Document conflictDoc, mergeDoc;
     conflictDoc.SetObject();
     mergeDoc.SetObject();
-    Value conflict_node, merged_node;
+
+    Value conflict_node, merged_node, merged_navi;
     conflict_node.SetArray();
     merged_node.SetArray();
+    merged_navi.SetArray();
     assert(merged_node.IsArray());
 
     // parse into document
@@ -104,6 +107,109 @@ int VersionControlLayer::mergeFile(std::string file0,
     doc0.Parse(file0.c_str());
     doc1.Parse(file1.c_str());
     doc2.Parse(file2.c_str());
+
+    // ------------------navi--------------->>>
+    Value& navi0 = doc0["description"]["-diagram"]["navi"];
+    Value& navi1 = doc1["description"]["-diagram"]["navi"];
+    Value& navi2 = doc2["description"]["-diagram"]["navi"];
+
+    for(int n=0;n<navi1.Size();n++)
+    {
+        Value mergeNaviObj(kObjectType);
+        
+        Value& href = navi1[n]["businessObjects"]["@href"];
+        // find same object in navi2
+        if(findNaviByHref(navi2, href))  //
+        {
+            // nothing to do
+        }
+        else  // if navi2 doesn't have this obj
+        {
+            // check the obj in navi0
+            if(findNaviByHref(navi0, href))  // navi0 has this, deleted by navi2
+            {
+                // delete this navi in navi1 and save to result
+                // hold navi2's state
+
+                // record merge:delete
+                mergeNaviObj.AddMember("version",
+                                       Value(kStringType).SetString(hash2.c_str(),hash2.length()),
+                                       mergeDoc.GetAllocator());
+                mergeNaviObj.AddMember("action", Value("delete"), mergeDoc.GetAllocator());
+                mergeNaviObj.AddMember("href",
+                                       Value(kStringType).CopyFrom(href, mergeDoc.GetAllocator()),
+                                       mergeDoc.GetAllocator());
+            }
+            else  // it is added by navi1
+            {
+                // add to navi2
+                Value temp;
+                temp.CopyFrom(navi1[n], doc1.GetAllocator());
+                navi2.PushBack(temp,doc2.GetAllocator());
+
+                // record merge
+                mergeNaviObj.AddMember("version",
+                                       Value(kStringType).SetString(hash1.c_str(),hash1.length()),
+                                       mergeDoc.GetAllocator());
+                mergeNaviObj.AddMember("action", Value("add"), mergeDoc.GetAllocator());
+                mergeNaviObj.AddMember("href",
+                                       Value(kStringType).CopyFrom(href, mergeDoc.GetAllocator()),
+                                       mergeDoc.GetAllocator());
+            }
+        }
+        merged_navi.PushBack(mergeNaviObj, mergeDoc.GetAllocator());
+    }  // for
+
+    for(auto m=navi2.Begin();m!=navi2.End();m++)
+    {
+        Value mergeNaviObj(kObjectType);
+        
+        Value& href = (*m)["businessObjects"]["@href"];
+        if(findNaviByHref(navi1, href))  //
+        {
+            // nothing to do
+        }
+        else  // if navi2 doesn't have this obj
+        {
+            // check the obj in navi0
+            if(findNaviByHref(navi0, href))  // navi0 has this, deleted by navi1
+            {
+                // delete this navi in navi2 and save to result
+                m = navi2.Erase(m);
+
+                // record merge:delete
+                mergeNaviObj.AddMember("version",
+                                       Value(kStringType).SetString(hash1.c_str(),hash1.length()),
+                                       mergeDoc.GetAllocator());
+                mergeNaviObj.AddMember("action", Value("delete"), mergeDoc.GetAllocator());
+                mergeNaviObj.AddMember("href",
+                                       Value(kStringType).CopyFrom(href, mergeDoc.GetAllocator()),
+                                       mergeDoc.GetAllocator());
+
+                if(m == navi2.End()) break;
+            }
+            else  // it is added by navi2
+            {
+                // hold navi2' state
+                // nothing to do
+
+                // record merge
+                mergeNaviObj.AddMember("version",
+                                       Value(kStringType).SetString(hash2.c_str(), hash2.length()),
+                                       mergeDoc.GetAllocator());
+                mergeNaviObj.AddMember("action", Value("add"), mergeDoc.GetAllocator());
+                mergeNaviObj.AddMember("href",
+                                       Value(kStringType).CopyFrom(href, mergeDoc.GetAllocator()),
+                                       mergeDoc.GetAllocator());
+            }
+        }
+        merged_navi.PushBack(mergeNaviObj, mergeDoc.GetAllocator());
+    }  // for
+    // <<<---------------navi------------------
+
+    // -----------------connections--------->>>
+    mergeConnections(doc1, doc2);
+    // <<<--------------connections------------
 
     queue<Value*> nodeQueue0;
     queue<Value*> nodeQueue1;
@@ -126,12 +232,11 @@ int VersionControlLayer::mergeFile(std::string file0,
         Value* nodelist1 = nodeQueue1.front();
         Value* nodelist2 = nodeQueue2.front();
 
-
         // ------------ nodelist1----------->>>
         assert((*nodelist1).IsArray());
         for(SizeType i = 0;i < (*nodelist1).Size(); i++)
         {
-            // to save conflict info
+            // 声明用于保存冲突信息的对象
             Value conflictNode_i(kObjectType);
             conflictNode_i.AddMember("isDeleted", Value("false"), conflictDoc.GetAllocator());
             Value conflict_key;
@@ -143,7 +248,7 @@ int VersionControlLayer::mergeFile(std::string file0,
             Value& id1_value = (*nodelist1)[i]["@shape_id"];
             string id1_string = id1_value.GetString();
 
-            // save id to conflictNode_i
+            // 将id存入 conflictNode_i
             Value temp;
             temp.CopyFrom(id1_value, doc1.GetAllocator());
             conflictNode_i.AddMember("shape_id", temp, conflictDoc.GetAllocator());
@@ -195,8 +300,11 @@ int VersionControlLayer::mergeFile(std::string file0,
                     // 如果1变了2没变，则用1覆盖2
                     else if(propertySame01 == false && propertySame02 == true)
                     {
-                        // 记录合并
+                        // 记录合并，保留版本1的值
                         Value mergeObj(kObjectType);
+                        temp.Clear();
+                        temp.SetString(hash1.c_str(), hash1.length());  // 获取版本1的hash号
+                        mergeObj.AddMember("version", temp, mergeDoc.GetAllocator());  // 记录所保留的是哪个版本的值
                         mergeObj.AddMember("action", Value("modify"), mergeDoc.GetAllocator());
                         mergeObj.AddMember("object", Value("text"), mergeDoc.GetAllocator());
                         temp.CopyFrom(id1_value, mergeDoc.GetAllocator());
@@ -204,67 +312,38 @@ int VersionControlLayer::mergeFile(std::string file0,
                         temp.CopyFrom(*v_text2, mergeDoc.GetAllocator());
                         mergeObj.AddMember("attr_name", temp, mergeDoc.GetAllocator());
                         
-                        merged_node.PushBack(mergeObj, mergeDoc.GetAllocator());  // add to merge array
+                        merged_node.PushBack(mergeObj, mergeDoc.GetAllocator());  // 添加到 merge array
 
-                        // TODO: 合并
+                        // 合并
                         v_text2->CopyFrom(*v_text1, mergeDoc.GetAllocator());
                     }
                     // 如果2变了1没变，则保留2
                     else if(propertySame01 == true && propertySame02 == false)
                     {
-                        // TODO: 记录合并
+                        // 记录合并，保留版本2的值
+                        Value mergeObj(kObjectType);
+                        temp.Clear();
+                        temp.SetString(hash2.c_str(), hash2.length());  // 获取版本2的hash号
+                        mergeObj.AddMember("version", temp, mergeDoc.GetAllocator());  // 记录所保留的是哪个版本的值
+                        mergeObj.AddMember("action", Value("modify"), mergeDoc.GetAllocator());
+                        mergeObj.AddMember("object", Value("text"), mergeDoc.GetAllocator());
+                        temp.CopyFrom(id1_value, mergeDoc.GetAllocator());
+                        mergeObj.AddMember("shape_id", temp, mergeDoc.GetAllocator());
+                        temp.CopyFrom(*v_text2, mergeDoc.GetAllocator());
+                        mergeObj.AddMember("attr_name", temp, mergeDoc.GetAllocator());
 
-                        // TODO: 合并
+                        merged_node.PushBack(mergeObj, mergeDoc.GetAllocator());  // 添加到 merge array
+
+                        // 合并: nothing to do
                     }
                     else // 两者都没变更的情况，不可能发生
                     {}
                 }  // if
+
+                // 合并两个版本中，该节点的连线列表，将相关连线加入2中
+                
                 // <<<------对比text------
-
-                // ------对比跳转链接------>>>
-                Value* navi2;
-                propertySame12 = compareProperty((*nodelist1)[i], (*nodelist2)[j], "navi", &navi2);
-                // 如果不相同则需要各自检查相对于基础版本的变动情况
-                if(propertySame12 == false)
-                {
-                    bool propertySame01 = false, propertySame02 = false;
-
-                    // 比较0和1的navi
-                    Value* navi1;
-                    propertySame01 = compareProperty((*nodelist0)[i], (*nodelist1)[j], "navi", &navi1);
-
-                    // 比较0和2的navi
-                    propertySame02 = compareProperty((*nodelist0)[i], (*nodelist2)[j], "navi", &navi2);
-
-                    // 如果两者都发生变更，则冲突
-                    if(propertySame01 == false && propertySame02 == false)
-                    {
-                        // 记录冲突
-                        conflict_key.PushBack(Value("navi"), conflictDoc.GetAllocator());
-                        temp.CopyFrom(*navi1, conflictDoc.GetAllocator());
-                        conflictNode_i.AddMember("navi", temp, conflictDoc.GetAllocator());
-                        conflictHappened = true;
-                    }
-                    // 如果1变了2没变，则用1覆盖2
-                    else if(propertySame01 == false && propertySame02 == true)
-                    {
-                        // TODO: 记录合并
-
-                        // TODO: 合并
-                    }
-                    // 如果2变了1没变，则保留2
-                    else if(propertySame01 == true && propertySame02 == false)
-                    {
-                        // TODO: 记录合并
-
-                        // TODO: 合并
-                    }
-                    else // 两者都没变更的情况，不可能发生
-                    {}
-                }  // if
-                // <<<------对比跳转链接------
-
-            }
+            }  // if(j >= 0)
             else  // 如果nodelist2中没有找到相同节点，则从nodelist0中找，以确定节点的增删情况
             {
                 // 在nodelist0中找到相同id的节点
@@ -286,17 +365,25 @@ int VersionControlLayer::mergeFile(std::string file0,
                         isDeleted.SetString(hash2.c_str(), hash2.length());
                         conflictHappened = true;
 
-                        // 相关连线加入doc["connection"]
-                        cpyConnections(doc1, doc2, (*nodelist1)[i]["anchors"]);
-
-                        // TODO: record conflict
-                        
+//                        // 相关连线加入doc["connection"]
+//                        cpyConnections(doc1, doc2, (*nodelist1)[i]["anchors"]);
                     }
                     else  // 不存在删除冲突
                     {
-                        // 合并:不需要处理，维持版本2对该节点的删除状态
+                        // 合并: 维持版本2对该节点的删除状态，并删除doc2中受影响的连线
+                        removeConnections(doc2, (*nodelist1)[i]["anchors"]);
 
-                        // TODO: record merge
+                        // 记录合并
+                        Value mergeObj(kObjectType);
+                        temp.Clear();
+                        temp.SetString(hash2.c_str(), hash2.length());  // 获取版本2的hash号
+                        mergeObj.AddMember("version", temp, mergeDoc.GetAllocator());  // 记录所保留的是哪个版本的值
+                        mergeObj.AddMember("action", Value("delete"), mergeDoc.GetAllocator());
+                        mergeObj.AddMember("object", Value("node"), mergeDoc.GetAllocator());
+                        temp.CopyFrom(id1_value, mergeDoc.GetAllocator());
+                        mergeObj.AddMember("shape_id", temp, mergeDoc.GetAllocator());
+
+                        merged_node.PushBack(mergeObj, mergeDoc.GetAllocator());  // 添加到 merge array
                     }
                 }
                 else // 版本0没有这个节点，则这是1添加的节点
@@ -307,14 +394,24 @@ int VersionControlLayer::mergeFile(std::string file0,
                     cp.CopyFrom((*nodelist1)[i], doc1.GetAllocator());
                     nodelist2->PushBack(cp, doc2.GetAllocator());
 
-                    // 相关连线加入doc["connection"]
-                    cpyConnections(doc1, doc2, (*nodelist1)[i]["anchors"]);
+//                    // 相关连线加入doc["connection"]
+//                    cpyConnections(doc1, doc2, (*nodelist1)[i]["anchors"]);
 
-                    // TODO: record merge
+                    // 记录合并
+                    Value mergeObj(kObjectType);
+                    temp.Clear();
+                    temp.SetString(hash1.c_str(), hash2.length());  // 获取版本2的hash号
+                    mergeObj.AddMember("version", temp, mergeDoc.GetAllocator());  // 记录所保留的是哪个版本的值
+                    mergeObj.AddMember("action", Value("add"), mergeDoc.GetAllocator());
+                    mergeObj.AddMember("object", Value("node"), mergeDoc.GetAllocator());
+                    temp.CopyFrom(id1_value, mergeDoc.GetAllocator());
+                    mergeObj.AddMember("shape_id", temp, mergeDoc.GetAllocator());
+
+                    merged_node.PushBack(mergeObj, mergeDoc.GetAllocator());  // 添加到 merge array
                 }
             }  // else
 
-            // save conflictNode_i to conflict_node array
+            // 将 conflictNode_i 存入 conflict_node 数组
             if(conflictHappened == true)
                 conflict_node.PushBack(conflictNode_i, conflictDoc.GetAllocator());
 
@@ -325,10 +422,22 @@ int VersionControlLayer::mergeFile(std::string file0,
         auto it = nodelist2->Begin();
         for(SizeType j = 0;j < (*nodelist2).Size(); j++, it++)
         {
-            // TODO: check list2
+			// 声明用于保存冲突信息的对象
+            Value conflictNode_j(kObjectType);
+            conflictNode_j.AddMember("isDeleted", Value("false"), conflictDoc.GetAllocator());
+            Value conflict_key;
+            conflict_key.SetArray();
+
+            bool conflictHappened = false;
+
             // 获取 node[j]的id
             Value& id2_value = (*nodelist2)[j]["@shape_id"];
             string id2_string = id2_value.GetString();
+
+            // 将id存入 conflictNode_j
+            Value temp;
+            temp.CopyFrom(id2_value, doc2.GetAllocator());
+            conflictNode_j.AddMember("shape_id", temp, conflictDoc.GetAllocator());
 
             // 在nodelist1中找到相同id的节点
             int i = findNodeByID((*nodelist1), id2_string);  // 返回找到的节点下标
@@ -337,7 +446,7 @@ int VersionControlLayer::mergeFile(std::string file0,
             {
                 // nothing to do
             }
-            else  // 如果nodelist2中没有找到相同节点，则从nodelist0中找，以确定节点的增删情况
+            else  // 如果nodelist1中没有找到相同节点，则从nodelist0中找，以确定节点的增删情况
             {
                 // 在nodelist0中找到相同id的节点
                 int k = findNodeByID(*nodelist0, id2_string);  // 返回找到的节点下标
@@ -348,15 +457,31 @@ int VersionControlLayer::mergeFile(std::string file0,
                     // 比较是否版本2相对版本0存在不同
                     if(diffNodeTree((*nodelist2)[j], (*nodelist0)[k]))  // 存在删除冲突
                     {
-                        // TODO: 在冲突文件中标注为删除冲突
+                        // 保留节点信息在版本2中
+                        // 在冲突文件中标注为删除冲突
+                        Value& isDeleted = conflictNode_j["isDeleted"];
+                        isDeleted.SetString(hash1.c_str(), hash1.length());
+                        conflictHappened = true;
                     }
                     else  // 不存在删除冲突
                     {
-                        // TODO: 合并:删除版本2该节点 and 相关连线
+                        // 合并:删除版本2中该节点 及 相关连线
                         removeConnections(doc2, (*nodelist2)[j]["anchors"]);
-                        nodelist2->Erase(it);
+                        it = nodelist2->Erase(it);
 
-                        // TODO: record merge
+                        // 记录合并
+                        Value mergeObj(kObjectType);
+                        temp.Clear();
+                        temp.SetString(hash1.c_str(), hash1.length());  // 获取版本1的hash号
+                        mergeObj.AddMember("version", temp, mergeDoc.GetAllocator());  // 记录所保留的是哪个版本的值
+                        mergeObj.AddMember("action", Value("delete"), mergeDoc.GetAllocator());
+                        mergeObj.AddMember("object", Value("node"), mergeDoc.GetAllocator());
+                        temp.CopyFrom(id2_value, mergeDoc.GetAllocator());
+                        mergeObj.AddMember("shape_id", temp, mergeDoc.GetAllocator());
+
+                        merged_node.PushBack(mergeObj, mergeDoc.GetAllocator());  // 添加到 merge array
+
+                        if(it == nodelist2->End()) break;
                     }
                 }
                 else  // added by 2
@@ -364,6 +489,10 @@ int VersionControlLayer::mergeFile(std::string file0,
                     // nothing to do
                 }
             }  // else
+
+            // 将 conflictNode_j 存入 conflict_node 数组
+            if(conflictHappened == true)
+                conflict_node.PushBack(conflictNode_j, conflictDoc.GetAllocator());
         }  // for
 
         // 将刚处理完的nodelist弹出队列
@@ -373,6 +502,7 @@ int VersionControlLayer::mergeFile(std::string file0,
     }
 
     conflictDoc.AddMember("conflict_node", conflict_node, conflictDoc.GetAllocator());
+    mergeDoc.AddMember("merged_navi", merged_navi, mergeDoc.GetAllocator());
     mergeDoc.AddMember("merged_node", merged_node, mergeDoc.GetAllocator());
     
     StringBuffer buffer1;
@@ -399,7 +529,7 @@ int VersionControlLayer::mergeFile(std::string file0,
 
 // <<----------- tools --------------->>
 /**
- * 寻找指定id的节点
+ * 寻找指定id的节点, TODO: change to map
  * @param nodes
  * @param id
  * @return
@@ -492,89 +622,111 @@ bool VersionControlLayer::diffNodeTree(Value& node1, Value& node2)
     return false;
 }
 
-// TODO: 可以考虑改成直接遍历一边connections，start或者end中有指定id则cpy
-bool VersionControlLayer::cpyConnections(Document& src_doc, Document& dst_doc, Value& anchors)
+/**
+ * 合并两个文档的connections部分，并将结果存入dst_doc
+ * @param src_doc 文档1
+ * @param dst_doc 文档2，同时也是保存结果的文档
+ * @return
+ */
+bool VersionControlLayer::mergeConnections(Document& src_doc, Document& dst_doc)
 {
     Value& src_conn = src_doc["description"]["-diagram"]["connections"];
     Value& dst_conn = dst_doc["description"]["-diagram"]["connections"];
 
-    Value& v_incomming = anchors["@incomingConnections"];
-//    Value& v_outgoing = anchors["@outgoingConnections"];
-    
-    string incomming(v_incomming.GetString());
-//    string outgoing(v_outgoing.GetString());
-
-    int start = 0, end = 0;
-    auto splitID = [&](string& from)->string
-    {
-        end = from.find(' ', start);
-        if(end != string::npos)
-        {
-            string result = from.substr(start, end-start);
-            start = end+1;
-            return result;
-        }
-        else
-            return from.substr(start, from.length()-start);
-    };
-
-    auto findSrcByID = [&](string cid)->int
-    {
-        for(SizeType i=0;i<src_conn.Size();i++)
-        {
-            Value& v_id2 = src_conn[i]["@conn_id"];
-            if(cid == string(v_id2.GetString()))
-                return i;
-        }
-        return -1;
-    };
-
-    auto findDstByID = [&](string cid)->int
+    auto findDstByID = [&](Value& cid)->int
     {
         for(SizeType i=0;i<dst_conn.Size();i++)
         {
             Value& v_id2 = dst_conn[i]["@conn_id"];
-            if(cid == string(v_id2.GetString()))
+            if(cid == v_id2)
                 return i;
         }
         return -1;
     };
 
-    // handle incomming
-    while(end != string::npos)
+    for(int i=0;i<src_conn.Size();i++)
     {
-        string id = splitID(incomming);
-        if(end == string::npos)
-            break;
-        
-        // find conn that has given id from doc1; if doc2 doesnt have this id, cpy conn to doc2
-        int conn1 = findSrcByID(id);
-        int conn2 = findDstByID(id);
-        if(conn2 < 0)  // cpy conn1 to dst_conn
+        Value& id1 = src_conn[i]["@conn_id"];
+
+        int j = findDstByID(id1);
+        if(j < 0)
         {
             Value temp;
-            temp.CopyFrom(src_conn[conn1], dst_doc.GetAllocator());
+            temp.CopyFrom(src_conn[i], dst_doc.GetAllocator());
             dst_conn.PushBack(temp, dst_doc.GetAllocator());
         }
     }
+
+    return true;
+}
+
+/**
+ * 将两个anchor的incomming和outgoing部分分别合并，并将结果存入dst_anchor
+ * @param src_anchor anchor1
+ * @param dst_anchor anchor2，同时也是保存结果的anchor
+ * @return
+ */
+bool VersionControlLayer::mergeAnchors(Value& src_anchor, Value& dst_anchor)
+{
+    Value& v_src_incomming = src_anchor["@incomingConnections"];
+    Value& v_src_outgoing = src_anchor["@outgoingConnections"];
+    Value& v_dst_incomming = dst_anchor["@incomingConnections"];
+    Value& v_dst_outgoing = dst_anchor["@outgoingConnections"];
+
+    string s_src_incomming(v_src_incomming.GetString());
+    string s_src_outgoing(v_src_outgoing.GetString());
+    string s_dst_incomming(v_dst_incomming.GetString());
+    string s_dst_outgoing(v_dst_outgoing.GetString());
+
+    vector<string> src_incomming, src_outgoing;
+    vector<string> dst_incomming, dst_outgoing;
+
+    split(s_src_incomming, " ", &src_incomming);
+    split(s_src_outgoing, " ", &src_outgoing);
+    split(s_src_incomming, " ", &dst_incomming);
+    split(s_src_outgoing, " ", &dst_outgoing);
+
+    set<string> mergeIdSet;
+
+    // ---------incomminng---------->>>
+    for(auto it=src_incomming.begin();it!=src_incomming.end();it++)
+    {
+        mergeIdSet.insert(*it);
+    }
+
+    for(auto it=dst_incomming.begin();it!=dst_incomming.end();it++)
+    {
+        mergeIdSet.insert(*it);
+    }
+
+    string s_mergeIncomming = "";
+    for(auto it=mergeIdSet.begin();it!=mergeIdSet.end();it++)
+    {
+        s_mergeIncomming += *it;
+    }
+    v_dst_incomming.SetString(s_mergeIncomming.c_str(), s_mergeIncomming.length());
+    // <<<-------incomming--------------
+
+    mergeIdSet.clear();
+    // ---------outgoing---------->>>
+    for(auto it=src_outgoing.begin();it!=src_outgoing.end();it++)
+    {
+        mergeIdSet.insert(*it);
+    }
+
+    for(auto it=dst_outgoing.begin();it!=dst_outgoing.end();it++)
+    {
+        mergeIdSet.insert(*it);
+    }
+
+    string s_mergeOutgoing = "";
+    for(auto it=mergeIdSet.begin();it!=mergeIdSet.end();it++)
+    {
+        s_mergeOutgoing += *it;
+    }
+    v_dst_outgoing.SetString(s_mergeOutgoing.c_str(), s_mergeOutgoing.length());
+    // <<<-------outgoing--------------
     
-    start = 0;
-    end = 0;
-/*    // handle outgoing
-    while(end != string::npos)
-    {
-        string id = splitID(outgoing);
-        // find conn that has given id from doc1; if doc2 doesnt have this id, cpy conn to doc2
-        int conn1 = findSrcByID(id);
-        int conn2 = findDstByID(id);
-        if(conn2 < 0)  // cpy conn1 to dst_conn
-        {
-            Value temp;
-            temp.CopyFrom(src_conn[conn1], dst_doc.GetAllocator());
-            dst_conn.PushBack(temp, dst_doc.GetAllocator());
-        }
-    }
-*/
     return true;
 }
 
@@ -635,5 +787,31 @@ bool VersionControlLayer::removeConnections(Document& dst_doc, Value& anchors)
     }
 
     return true;
+}
+
+bool VersionControlLayer::findNaviByHref(Value& navi, Value& href)
+{
+    for(int i=0;i<navi.Size();i++)
+    {
+        Value& h = navi[i]["businessObjects"]["@href"];
+        if(h == href) return true;
+    }
+    return false;
+}
+
+void VersionControlLayer::split(string& s, string& delim, vector<string>* ret)
+{
+    size_t last = 0;
+    size_t index=s.find_first_of(delim,last);
+    while (index!=string::npos)
+    {
+        ret->push_back(s.substr(last,index-last));
+        last=index+1;
+        index=s.find_first_of(delim,last);
+    }
+    if (index-last>0)
+    {
+        ret->push_back(s.substr(last,index-last));
+    }
 }
 // <<----------- tools --------------->>
