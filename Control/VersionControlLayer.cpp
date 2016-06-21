@@ -102,7 +102,7 @@ int VersionControlLayer::mergeFile(std::string file0,
     merged_navi.SetArray();
     assert(merged_node.IsArray());
 
-    // parse into document
+    // 将json字符串转成文档
     Document doc0, doc1, doc2;
     doc0.Parse(file0.c_str());
     doc1.Parse(file1.c_str());
@@ -118,20 +118,20 @@ int VersionControlLayer::mergeFile(std::string file0,
         Value mergeNaviObj(kObjectType);
         
         Value& href = navi1[n]["businessObjects"]["@href"];
-        // find same object in navi2
-        if(findNaviByHref(navi2, href))  //
+        // 在navi2中查找同样的跳转
+        if(findNaviByHref(navi2, href))  // 如果存在
         {
             // nothing to do
         }
-        else  // if navi2 doesn't have this obj
+        else  // 如果navi2中不存在同样的跳转
         {
-            // check the obj in navi0
-            if(findNaviByHref(navi0, href))  // navi0 has this, deleted by navi2
+            // 查看navi0中是否存在该跳转
+            if(findNaviByHref(navi0, href))  // navi0存在该跳转，则这是被版本2删除的跳转
             {
-                // delete this navi in navi1 and save to result
-                // hold navi2's state
+                // 合并：从版本1中删除该跳转，并存入结果
+                // 实际实现：保持navi2对该跳转的删除状态
 
-                // record merge:delete
+                // 记录合并：删除
                 mergeNaviObj.AddMember("version",
                                        Value(kStringType).SetString(hash2.c_str(),hash2.length()),
                                        mergeDoc.GetAllocator());
@@ -140,14 +140,14 @@ int VersionControlLayer::mergeFile(std::string file0,
                                        Value(kStringType).CopyFrom(href, mergeDoc.GetAllocator()),
                                        mergeDoc.GetAllocator());
             }
-            else  // it is added by navi1
+            else  // navi0不存在该跳转，这是被版本1添加的跳转
             {
-                // add to navi2
+                // 添加到 navi2
                 Value temp;
                 temp.CopyFrom(navi1[n], doc1.GetAllocator());
                 navi2.PushBack(temp,doc2.GetAllocator());
 
-                // record merge
+                // 记录合并
                 mergeNaviObj.AddMember("version",
                                        Value(kStringType).SetString(hash1.c_str(),hash1.length()),
                                        mergeDoc.GetAllocator());
@@ -165,6 +165,7 @@ int VersionControlLayer::mergeFile(std::string file0,
         Value mergeNaviObj(kObjectType);
         
         Value& href = (*m)["businessObjects"]["@href"];
+        // 在navi1中查找同样的跳转
         if(findNaviByHref(navi1, href))  //
         {
             // nothing to do
@@ -172,12 +173,12 @@ int VersionControlLayer::mergeFile(std::string file0,
         else  // if navi2 doesn't have this obj
         {
             // check the obj in navi0
-            if(findNaviByHref(navi0, href))  // navi0 has this, deleted by navi1
+            if(findNaviByHref(navi0, href))  // navi0存在该跳转，则这是被版本1删除的跳转
             {
-                // delete this navi in navi2 and save to result
+                // 合并：从版本2中删除该跳转，并存入结果
                 m = navi2.Erase(m);
 
-                // record merge:delete
+                // 记录合并：删除
                 mergeNaviObj.AddMember("version",
                                        Value(kStringType).SetString(hash1.c_str(),hash1.length()),
                                        mergeDoc.GetAllocator());
@@ -188,12 +189,12 @@ int VersionControlLayer::mergeFile(std::string file0,
 
                 if(m == navi2.End()) break;
             }
-            else  // it is added by navi2
+            else  // navi0不存在该跳转，这是被版本2添加的跳转
             {
-                // hold navi2' state
-                // nothing to do
+                // 将该跳转添加到最终结果
+                // 实现：保持navi2的状态
 
-                // record merge
+                // 记录合并
                 mergeNaviObj.AddMember("version",
                                        Value(kStringType).SetString(hash2.c_str(), hash2.length()),
                                        mergeDoc.GetAllocator());
@@ -388,7 +389,7 @@ int VersionControlLayer::mergeFile(std::string file0,
                 }
                 else // 版本0没有这个节点，则这是1添加的节点
                 {
-                    // 合并:将该节点增加至diagram2,并将相关连线加入diagram2的connections数组
+                    // 合并:将该节点增加至diagram2当前正在处理的node数组中,并将相关连线加入diagram2的connections数组
                     // 该节点加入到nodelist2
                     Value cp;
                     cp.CopyFrom((*nodelist1)[i], doc1.GetAllocator());
@@ -481,7 +482,7 @@ int VersionControlLayer::mergeFile(std::string file0,
 
                         merged_node.PushBack(mergeObj, mergeDoc.GetAllocator());  // 添加到 merge array
 
-                        if(it == nodelist2->End()) break;
+                        if(it == nodelist2->End()) break;  // 如果此时刚刚删除的节点是最后一个节点，则退出循环
                     }
                 }
                 else  // added by 2
@@ -529,7 +530,7 @@ int VersionControlLayer::mergeFile(std::string file0,
 
 // <<----------- tools --------------->>
 /**
- * 寻找指定id的节点, TODO: change to map
+ * 寻找指定id的节点, TODO: 改为从一个Map中查找，与生成map的函数配合使用
  * @param nodes
  * @param id
  * @return
@@ -556,11 +557,11 @@ int VersionControlLayer::findNodeByID(Value& nodes, string id)
 
 /**
  * 比较两个节点当中的某个属性是否相同
- * @param node1
- * @param node2
- * @param name
- * @param val node2's property value
- * @return
+ * @param node1 节点1
+ * @param node2 节点2
+ * @param name 属性名
+ * @param val 如果传入非Null值，则可以获取到node2中指定属性对象
+ * @return 相同则返回true，否则false
  */
 bool VersionControlLayer::compareProperty(Value& node1, Value& node2, string name, Value** val)
 {
@@ -575,9 +576,30 @@ bool VersionControlLayer::compareProperty(Value& node1, Value& node2, string nam
         Value& textMember2 = node2["ext"]["text"][0];
         Value& text2 = textMember2["style"]["@value"];
 
-        *val = &textMember2["style"]["@value"];
+        if(val)
+            *val = &textMember2["style"]["@value"];
 
         return text1 == text2;
+    }
+    else if(name == "anchors")
+    {
+        Value& anchors1 = node1["anchors"];
+        Value& anchors2 = node2["anchors"];
+
+        if(val)
+            *val = &node2["anchors"];
+
+        return anchors1 == anchors2;
+    }
+    else if(name == "nodelist")
+    {
+        Value& nodelist1 = node1["nodelist"];
+        Value& nodelist2 = node2["nodelist"];
+
+        if(val)
+            *val = &node2["nodelist"];
+
+        return nodelist1 == nodelist2;
     }
 
     return true;
@@ -593,10 +615,9 @@ bool VersionControlLayer::diffNodeTree(Value& node1, Value& node2)
 {
     // 如果该层节点的属性不一致，则返回true
     Value* temp;
-    if(compareProperty(node1, node2, "text", &temp) ||
-       compareProperty(node1, node2, "linkto", &temp) ||
-       compareProperty(node1, node2, "anchors", &temp) ||
-       compareProperty(node1, node2, "nodelist", &temp)
+    if(compareProperty(node1, node2, "text", &temp) == false ||
+       compareProperty(node1, node2, "anchors", &temp) == false ||
+       compareProperty(node1, node2, "nodelist", &temp) == false
                        )
     {
         return true;
@@ -683,8 +704,8 @@ bool VersionControlLayer::mergeAnchors(Value& src_anchor, Value& dst_anchor)
 
     split(s_src_incomming, " ", &src_incomming);
     split(s_src_outgoing, " ", &src_outgoing);
-    split(s_src_incomming, " ", &dst_incomming);
-    split(s_src_outgoing, " ", &dst_outgoing);
+    split(s_dst_incomming, " ", &dst_incomming);
+    split(s_dst_outgoing, " ", &dst_outgoing);
 
     set<string> mergeIdSet;
 
@@ -799,7 +820,7 @@ bool VersionControlLayer::findNaviByHref(Value& navi, Value& href)
     return false;
 }
 
-void VersionControlLayer::split(string& s, string& delim, vector<string>* ret)
+void VersionControlLayer::split(string& s, const string delim, vector<string>* ret)
 {
     size_t last = 0;
     size_t index=s.find_first_of(delim,last);

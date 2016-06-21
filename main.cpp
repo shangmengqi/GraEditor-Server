@@ -78,6 +78,15 @@ int main(int argc, char** argv)
         }
     }
 
+    Value testEq1(kObjectType);
+    Value testEq2(kObjectType);
+
+    cp.CopyFrom(a1, doc1.GetAllocator());
+    testEq1.AddMember("a1", cp, doc1.GetAllocator());
+    cp.CopyFrom(a1, doc1.GetAllocator());
+    testEq2.AddMember("a1", cp, doc2.GetAllocator());
+    bool eq = testEq1 == testEq2;
+
     doc1.AddMember("aaa", a1, doc1.GetAllocator());
     doc1.AddMember("array",array, doc1.GetAllocator());
     if(doc1.HasMember("bbb"))

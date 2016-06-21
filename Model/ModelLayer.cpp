@@ -85,5 +85,7 @@ int ModelLayer::insert(const std::string jsonStr,
     cs.getCollection(set.c_str(), cl);
     // 插入
     cl.insert(in);
+
+    return 0;
 }
 

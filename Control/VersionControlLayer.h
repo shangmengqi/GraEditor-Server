@@ -132,21 +132,28 @@ private:
                          std::string name, rapidjson::Value** val);
     // 比较两个节点以及其所有字节点是否相同
     bool diffNodeTree(rapidjson::Value& node1, rapidjson::Value& node2);
-    // cpy connections from src_doc to dst_doc, connections are chosen by anchors["incomming"] and anchors["outgoing"]
-    bool cpyConnections(rapidjson::Document& src_doc, rapidjson::Document& dst_doc, rapidjson::Value& anchors);
+
+//    // cpy connections from src_doc to dst_doc, connections are chosen by anchors["incomming"] and anchors["outgoing"]
+//    bool cpyConnections(rapidjson::Document& src_doc, rapidjson::Document& dst_doc, rapidjson::Value& anchors);
+    
     // merge connections of 2 doc
     bool mergeConnections(rapidjson::Document& src_doc,
                           rapidjson::Document& dst_doc);
+    
     // merge anchors of 2 nodes
     bool mergeAnchors(rapidjson::Value& src_anchor, rapidjson::Value& dst_anchor);
+
     //
     bool removeConnections(rapidjson::Document& dst_doc, rapidjson::Value& anchors);
+
     //
     bool findNaviByHref(rapidjson::Value& navi, rapidjson::Value& href);
+
     //
-    void split(std::string& s, std::string& delim,std::vector< std::string >* ret);
+    void split(std::string& s, const std::string delim,std::vector< std::string >* ret);
+    
     // transfer node array into a map
-    void nodes2map(rapidjson::Value& nodelist, std::map<std::string, int> *nodeMap);
+    void createNodesMap(rapidjson::Value& nodelist, std::map<std::string, int> *nodeMap);
 
 };
 
