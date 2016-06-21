@@ -86,6 +86,7 @@ int main(int argc, char** argv)
     cp.CopyFrom(a1, doc1.GetAllocator());
     testEq2.AddMember("a1", cp, doc2.GetAllocator());
     bool eq = testEq1 == testEq2;
+    bool type = testEq1.GetType() == kObjectType;
 
     doc1.AddMember("aaa", a1, doc1.GetAllocator());
     doc1.AddMember("array",array, doc1.GetAllocator());

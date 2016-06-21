@@ -116,12 +116,14 @@ int VersionControlLayer::mergeFile(std::string file0,
     for(int n=0;n<navi1.Size();n++)
     {
         Value mergeNaviObj(kObjectType);
+        bool merged = true;
         
         Value& href = navi1[n]["businessObjects"]["@href"];
         // 在navi2中查找同样的跳转
         if(findNaviByHref(navi2, href))  // 如果存在
         {
             // nothing to do
+            merged = false;
         }
         else  // 如果navi2中不存在同样的跳转
         {
@@ -157,18 +159,21 @@ int VersionControlLayer::mergeFile(std::string file0,
                                        mergeDoc.GetAllocator());
             }
         }
-        merged_navi.PushBack(mergeNaviObj, mergeDoc.GetAllocator());
+        if(merged == true)
+            merged_navi.PushBack(mergeNaviObj, mergeDoc.GetAllocator());
     }  // for
 
     for(auto m=navi2.Begin();m!=navi2.End();m++)
     {
         Value mergeNaviObj(kObjectType);
+        bool merged = true;
         
         Value& href = (*m)["businessObjects"]["@href"];
         // 在navi1中查找同样的跳转
         if(findNaviByHref(navi1, href))  //
         {
             // nothing to do
+            merged = false;
         }
         else  // if navi2 doesn't have this obj
         {
@@ -204,12 +209,15 @@ int VersionControlLayer::mergeFile(std::string file0,
                                        mergeDoc.GetAllocator());
             }
         }
-        merged_navi.PushBack(mergeNaviObj, mergeDoc.GetAllocator());
+        if(merged == true)
+            merged_navi.PushBack(mergeNaviObj, mergeDoc.GetAllocator());
     }  // for
     // <<<---------------navi------------------
 
     // -----------------connections--------->>>
-    mergeConnections(doc1, doc2);
+    Value& src_conn = doc1["description"]["-diagram"]["connections"];
+    Value& dst_conn = doc2["description"]["-diagram"]["connections"];
+    mergeConnections(src_conn, dst_conn);
     // <<<--------------connections------------
 
     queue<Value*> nodeQueue0;
@@ -260,6 +268,9 @@ int VersionControlLayer::mergeFile(std::string file0,
             // 如果找到了相同节点，比较是否所有属性相同
             if(j >= 0)
             {
+                // merge anchors
+                mergeAnchors((*nodelist1)[i]["anchors"], (*nodelist2)[j]["anchors"]);
+
                 // --------将子节点数组加入队列---->>>
                 // 从nodelist0中取出该节点（1、2有共同节点，一定是从0继承的，0一定存在该点）
                 int k = findNodeByID((*nodelist0), id1_string);
@@ -649,11 +660,12 @@ bool VersionControlLayer::diffNodeTree(Value& node1, Value& node2)
  * @param dst_doc 文档2，同时也是保存结果的文档
  * @return
  */
-bool VersionControlLayer::mergeConnections(Document& src_doc, Document& dst_doc)
+bool VersionControlLayer::mergeConnections(Value& src_conn, Value& dst_conn)
 {
-    Value& src_conn = src_doc["description"]["-diagram"]["connections"];
-    Value& dst_conn = dst_doc["description"]["-diagram"]["connections"];
-
+//    Value& src_conn = src_doc["description"]["-diagram"]["connections"];
+//    Value& dst_conn = dst_doc["description"]["-diagram"]["connections"];
+//
+    Document tempDoc(kObjectType);
     auto findDstByID = [&](Value& cid)->int
     {
         for(SizeType i=0;i<dst_conn.Size();i++)
@@ -673,8 +685,8 @@ bool VersionControlLayer::mergeConnections(Document& src_doc, Document& dst_doc)
         if(j < 0)
         {
             Value temp;
-            temp.CopyFrom(src_conn[i], dst_doc.GetAllocator());
-            dst_conn.PushBack(temp, dst_doc.GetAllocator());
+            temp.CopyFrom(src_conn[i], tempDoc.GetAllocator());
+            dst_conn.PushBack(temp, tempDoc.GetAllocator());
         }
     }
 
@@ -689,9 +701,9 @@ bool VersionControlLayer::mergeConnections(Document& src_doc, Document& dst_doc)
  */
 bool VersionControlLayer::mergeAnchors(Value& src_anchor, Value& dst_anchor)
 {
-    Value& v_src_incomming = src_anchor["@incomingConnections"];
+    Value& v_src_incomming = src_anchor["@incommingConnections"];
     Value& v_src_outgoing = src_anchor["@outgoingConnections"];
-    Value& v_dst_incomming = dst_anchor["@incomingConnections"];
+    Value& v_dst_incomming = dst_anchor["@incommingConnections"];
     Value& v_dst_outgoing = dst_anchor["@outgoingConnections"];
 
     string s_src_incomming(v_src_incomming.GetString());
@@ -724,6 +736,7 @@ bool VersionControlLayer::mergeAnchors(Value& src_anchor, Value& dst_anchor)
     for(auto it=mergeIdSet.begin();it!=mergeIdSet.end();it++)
     {
         s_mergeIncomming += *it;
+        s_mergeIncomming += " ";
     }
     v_dst_incomming.SetString(s_mergeIncomming.c_str(), s_mergeIncomming.length());
     // <<<-------incomming--------------
@@ -744,6 +757,7 @@ bool VersionControlLayer::mergeAnchors(Value& src_anchor, Value& dst_anchor)
     for(auto it=mergeIdSet.begin();it!=mergeIdSet.end();it++)
     {
         s_mergeOutgoing += *it;
+        s_mergeOutgoing += " ";
     }
     v_dst_outgoing.SetString(s_mergeOutgoing.c_str(), s_mergeOutgoing.length());
     // <<<-------outgoing--------------

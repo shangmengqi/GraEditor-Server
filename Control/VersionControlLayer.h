@@ -137,8 +137,8 @@ private:
 //    bool cpyConnections(rapidjson::Document& src_doc, rapidjson::Document& dst_doc, rapidjson::Value& anchors);
     
     // merge connections of 2 doc
-    bool mergeConnections(rapidjson::Document& src_doc,
-                          rapidjson::Document& dst_doc);
+    bool mergeConnections(rapidjson::Value& src_conn,
+                          rapidjson::Value& dst_conn);
     
     // merge anchors of 2 nodes
     bool mergeAnchors(rapidjson::Value& src_anchor, rapidjson::Value& dst_anchor);
