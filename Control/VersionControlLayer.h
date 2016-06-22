@@ -138,10 +138,10 @@ private:
     
     // merge connections of 2 doc
     bool mergeConnections(rapidjson::Value& src_conn,
-                          rapidjson::Value& dst_conn);
+                          rapidjson::Value& dst_conn, rapidjson::Document& doc);
     
     // merge anchors of 2 nodes
-    bool mergeAnchors(rapidjson::Value& src_anchor, rapidjson::Value& dst_anchor);
+    bool mergeAnchors(rapidjson::Value& src_anchor, rapidjson::Value& dst_anchor, rapidjson::Document& doc);
 
     //
     bool removeConnections(rapidjson::Document& dst_doc, rapidjson::Value& anchors);

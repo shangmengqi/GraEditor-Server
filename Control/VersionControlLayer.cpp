@@ -180,9 +180,6 @@ int VersionControlLayer::mergeFile(std::string file0,
             // check the obj in navi0
             if(findNaviByHref(navi0, href))  // navi0存在该跳转，则这是被版本1删除的跳转
             {
-                // 合并：从版本2中删除该跳转，并存入结果
-                m = navi2.Erase(m);
-
                 // 记录合并：删除
                 mergeNaviObj.AddMember("version",
                                        Value(kStringType).SetString(hash1.c_str(),hash1.length()),
@@ -192,7 +189,8 @@ int VersionControlLayer::mergeFile(std::string file0,
                                        Value(kStringType).CopyFrom(href, mergeDoc.GetAllocator()),
                                        mergeDoc.GetAllocator());
 
-                if(m == navi2.End()) break;
+                // 合并：从版本2中删除该跳转，并存入结果
+                m = navi2.Erase(m);
             }
             else  // navi0不存在该跳转，这是被版本2添加的跳转
             {
@@ -211,13 +209,20 @@ int VersionControlLayer::mergeFile(std::string file0,
         }
         if(merged == true)
             merged_navi.PushBack(mergeNaviObj, mergeDoc.GetAllocator());
+        if(m == navi2.End()) break;
     }  // for
     // <<<---------------navi------------------
 
     // -----------------connections--------->>>
     Value& src_conn = doc1["description"]["-diagram"]["connections"];
     Value& dst_conn = doc2["description"]["-diagram"]["connections"];
-    mergeConnections(src_conn, dst_conn);
+    mergeConnections(src_conn, dst_conn, doc2);
+
+//    StringBuffer bufferConn;
+//    Writer<StringBuffer> writerConn(bufferConn);
+//    doc2.Accept(writerConn);
+//    // Output
+//    std::cout << bufferConn.GetString() << std::endl;
     // <<<--------------connections------------
 
     queue<Value*> nodeQueue0;
@@ -236,6 +241,7 @@ int VersionControlLayer::mergeFile(std::string file0,
 
     while(!nodeQueue0.empty())
     {
+        cout<<"-------while-----------"<<endl;
         // 从队列获取nodelist
         Value* nodelist0 = nodeQueue0.front();
         Value* nodelist1 = nodeQueue1.front();
@@ -269,7 +275,7 @@ int VersionControlLayer::mergeFile(std::string file0,
             if(j >= 0)
             {
                 // merge anchors
-                mergeAnchors((*nodelist1)[i]["anchors"], (*nodelist2)[j]["anchors"]);
+                mergeAnchors((*nodelist1)[i]["anchors"], (*nodelist2)[j]["anchors"], doc2);
 
                 // --------将子节点数组加入队列---->>>
                 // 从nodelist0中取出该节点（1、2有共同节点，一定是从0继承的，0一定存在该点）
@@ -513,27 +519,29 @@ int VersionControlLayer::mergeFile(std::string file0,
         nodeQueue2.pop();
     }
 
-    conflictDoc.AddMember("conflict_node", conflict_node, conflictDoc.GetAllocator());
-    mergeDoc.AddMember("merged_navi", merged_navi, mergeDoc.GetAllocator());
-    mergeDoc.AddMember("merged_node", merged_node, mergeDoc.GetAllocator());
+//    conflictDoc.AddMember("conflict_node", conflict_node, conflictDoc.GetAllocator());
+//    mergeDoc.AddMember("merged_navi", merged_navi, mergeDoc.GetAllocator());
+//    mergeDoc.AddMember("merged_node", merged_node, mergeDoc.GetAllocator());
     
     StringBuffer buffer1;
     Writer<StringBuffer> writer1(buffer1);
     conflictDoc.Accept(writer1);
     // Output
     std::cout << buffer1.GetString() << std::endl;
+//
+//    StringBuffer buffer2;
+//    Writer<StringBuffer> writer2(buffer2);
+//    mergeDoc.Accept(writer2);
+//    // Output
+//    std::cout << buffer2.GetString() << std::endl;
 
-    StringBuffer buffer2;
-    Writer<StringBuffer> writer2(buffer2);
-    mergeDoc.Accept(writer2);
-    // Output
-    std::cout << buffer2.GetString() << std::endl;
+    cout<<"------------------"<<endl;
 
     StringBuffer buffer3;
     Writer<StringBuffer> writer3(buffer3);
     doc2.Accept(writer3);
     // Output
-    //std::cout << buffer3.GetString() << std::endl;
+    std::cout << buffer3.GetString() << std::endl;
 
     cout<<"return "<<endl;
     return 0;
@@ -660,12 +668,12 @@ bool VersionControlLayer::diffNodeTree(Value& node1, Value& node2)
  * @param dst_doc 文档2，同时也是保存结果的文档
  * @return
  */
-bool VersionControlLayer::mergeConnections(Value& src_conn, Value& dst_conn)
+bool VersionControlLayer::mergeConnections(Value& src_conn, Value& dst_conn, Document& doc)
 {
 //    Value& src_conn = src_doc["description"]["-diagram"]["connections"];
 //    Value& dst_conn = dst_doc["description"]["-diagram"]["connections"];
 //
-    Document tempDoc(kObjectType);
+    //Document tempDoc(kObjectType);
     auto findDstByID = [&](Value& cid)->int
     {
         for(SizeType i=0;i<dst_conn.Size();i++)
@@ -685,8 +693,14 @@ bool VersionControlLayer::mergeConnections(Value& src_conn, Value& dst_conn)
         if(j < 0)
         {
             Value temp;
-            temp.CopyFrom(src_conn[i], tempDoc.GetAllocator());
-            dst_conn.PushBack(temp, tempDoc.GetAllocator());
+            temp.CopyFrom(src_conn[i], doc.GetAllocator());
+            dst_conn.PushBack(temp, doc.GetAllocator());
+
+//            StringBuffer buffer1;
+//            Writer<StringBuffer> writer1(buffer1);
+//            dst_conn.Accept(writer1);
+//            // Output
+//            std::cout << buffer1.GetString() << std::endl;
         }
     }
 
@@ -699,7 +713,7 @@ bool VersionControlLayer::mergeConnections(Value& src_conn, Value& dst_conn)
  * @param dst_anchor anchor2，同时也是保存结果的anchor
  * @return
  */
-bool VersionControlLayer::mergeAnchors(Value& src_anchor, Value& dst_anchor)
+bool VersionControlLayer::mergeAnchors(Value& src_anchor, Value& dst_anchor, Document& doc)
 {
     Value& v_src_incomming = src_anchor["@incommingConnections"];
     Value& v_src_outgoing = src_anchor["@outgoingConnections"];
@@ -738,7 +752,7 @@ bool VersionControlLayer::mergeAnchors(Value& src_anchor, Value& dst_anchor)
         s_mergeIncomming += *it;
         s_mergeIncomming += " ";
     }
-    v_dst_incomming.SetString(s_mergeIncomming.c_str(), s_mergeIncomming.length());
+    v_dst_incomming.SetString(s_mergeIncomming.c_str(), s_mergeIncomming.size(), doc.GetAllocator());
     // <<<-------incomming--------------
 
     mergeIdSet.clear();
@@ -759,8 +773,14 @@ bool VersionControlLayer::mergeAnchors(Value& src_anchor, Value& dst_anchor)
         s_mergeOutgoing += *it;
         s_mergeOutgoing += " ";
     }
-    v_dst_outgoing.SetString(s_mergeOutgoing.c_str(), s_mergeOutgoing.length());
+    v_dst_outgoing.SetString(s_mergeOutgoing.c_str(), s_mergeOutgoing.size(), doc.GetAllocator());
     // <<<-------outgoing--------------
+
+//    StringBuffer buffer1;
+//    Writer<StringBuffer> writer1(buffer1);
+//    dst_anchor.Accept(writer1);
+//    // Output
+//    std::cout << buffer1.GetString() << std::endl;
     
     return true;
 }
@@ -840,13 +860,14 @@ void VersionControlLayer::split(string& s, const string delim, vector<string>* r
     size_t index=s.find_first_of(delim,last);
     while (index!=string::npos)
     {
+        //cout<<s.substr(last,index-last).c_str()<<endl;
         ret->push_back(s.substr(last,index-last));
         last=index+1;
         index=s.find_first_of(delim,last);
     }
-    if (index-last>0)
-    {
-        ret->push_back(s.substr(last,index-last));
-    }
+//    if (index-last>0)
+//    {
+//        ret->push_back(s.substr(last,index-last));
+//    }
 }
 // <<----------- tools --------------->>
