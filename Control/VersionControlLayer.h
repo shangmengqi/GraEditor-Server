@@ -20,6 +20,7 @@
 #include "ControlLayer.h"
 #include <map>
 #include <vector>
+#include <set>
 #include <thread>
 #include <mutex>
 #include <atomic>
@@ -138,10 +139,15 @@ private:
     
     // merge connections of 2 doc
     bool mergeConnections(rapidjson::Value& src_conn,
-                          rapidjson::Value& dst_conn, rapidjson::Document& doc);
+                          rapidjson::Value& dst_conn,
+                          rapidjson::Value& filt_conn,
+                          rapidjson::Document& doc);
     
     // merge anchors of 2 nodes
-    bool mergeAnchors(rapidjson::Value& src_anchor, rapidjson::Value& dst_anchor, rapidjson::Document& doc);
+    bool mergeAnchors(rapidjson::Value& src_anchor,
+                      rapidjson::Value& dst_anchor,
+                      rapidjson::Value& filt_anchor,
+                      rapidjson::Document& doc);
 
     //
     bool removeConnections(rapidjson::Document& dst_doc, rapidjson::Value& anchors);
@@ -150,7 +156,14 @@ private:
     bool findNaviByHref(rapidjson::Value& navi, rapidjson::Value& href);
 
     //
-    void split(std::string& s, const std::string delim,std::vector< std::string >* ret);
+    void splitStringToSet(std::string& s,
+               const std::string delim,
+               std::set< std::string >* ret,
+               std::set< std::string >* filt);
+    //
+    void filtId(std::set< std::string >* ret,
+                std::set< std::string >* src,
+                std::set< std::string >* filt);
     
     // transfer node array into a map
     void createNodesMap(rapidjson::Value& nodelist, std::map<std::string, int> *nodeMap);

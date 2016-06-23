@@ -216,7 +216,8 @@ int VersionControlLayer::mergeFile(std::string file0,
     // -----------------connections--------->>>
     Value& src_conn = doc1["description"]["-diagram"]["connections"];
     Value& dst_conn = doc2["description"]["-diagram"]["connections"];
-    mergeConnections(src_conn, dst_conn, doc2);
+    Value& filt_conn = doc0["description"]["-diagram"]["connections"];
+    mergeConnections(src_conn, dst_conn, filt_conn, doc2);
 
 //    StringBuffer bufferConn;
 //    Writer<StringBuffer> writerConn(bufferConn);
@@ -248,9 +249,11 @@ int VersionControlLayer::mergeFile(std::string file0,
         Value* nodelist2 = nodeQueue2.front();
 
         // ------------ nodelist1----------->>>
+        cout<<"-------1-----------"<<endl;
         assert((*nodelist1).IsArray());
         for(SizeType i = 0;i < (*nodelist1).Size(); i++)
         {
+            cout<<"-------for-----------"<<endl;
             // 声明用于保存冲突信息的对象
             Value conflictNode_i(kObjectType);
             conflictNode_i.AddMember("isDeleted", Value("false"), conflictDoc.GetAllocator());
@@ -274,13 +277,14 @@ int VersionControlLayer::mergeFile(std::string file0,
             // 如果找到了相同节点，比较是否所有属性相同
             if(j >= 0)
             {
-                // merge anchors
-                mergeAnchors((*nodelist1)[i]["anchors"], (*nodelist2)[j]["anchors"], doc2);
-
-                // --------将子节点数组加入队列---->>>
+                cout<<"-------j>=0-----------"<<endl;
                 // 从nodelist0中取出该节点（1、2有共同节点，一定是从0继承的，0一定存在该点）
                 int k = findNodeByID((*nodelist0), id1_string);
-                
+
+                // merge anchors
+                mergeAnchors((*nodelist1)[i]["anchors"], (*nodelist2)[j]["anchors"], (*nodelist0)[k]["anchors"], doc2);
+
+                // --------将子节点数组加入队列---->>>
                 Value& subn0 = (*nodelist0)[k]["node"];
                 Value& subn1 = (*nodelist1)[i]["node"];
                 Value& subn2 = (*nodelist2)[j]["node"];
@@ -292,19 +296,21 @@ int VersionControlLayer::mergeFile(std::string file0,
                 // <<<-----将子节点数组加入队列-------
 
                 // ------对比text------>>>
+                cout<<"-------text-----------"<<endl;
                 Value* v_text2;
                 bool propertySame12 = compareProperty((*nodelist1)[i], (*nodelist2)[j], "text", &v_text2);
                 // 如果不相同则需要各自检查相对于基础版本的变动情况
                 if(propertySame12 == false)
                 {
+                    cout<<"-------same12 == false-----------"<<endl;
                     bool propertySame01 = false, propertySame02 = false;
 
                     // 比较0和1的text
                     Value* v_text1;
-                    propertySame01 = compareProperty((*nodelist0)[i], (*nodelist1)[j], "text", &v_text1);
+                    propertySame01 = compareProperty((*nodelist0)[k], (*nodelist1)[j], "text", &v_text1);
 
                     // 比较0和2的text
-                    propertySame02 = compareProperty((*nodelist0)[i], (*nodelist2)[j], "text", &v_text2);
+                    propertySame02 = compareProperty((*nodelist0)[k], (*nodelist2)[j], "text", &v_text2);
 
                     // 如果两者都发生变更，则冲突
                     if(propertySame01 == false && propertySame02 == false)
@@ -320,7 +326,7 @@ int VersionControlLayer::mergeFile(std::string file0,
                     {
                         // 记录合并，保留版本1的值
                         Value mergeObj(kObjectType);
-                        temp.Clear();
+                        //temp.Clear();
                         temp.SetString(hash1.c_str(), hash1.length());  // 获取版本1的hash号
                         mergeObj.AddMember("version", temp, mergeDoc.GetAllocator());  // 记录所保留的是哪个版本的值
                         mergeObj.AddMember("action", Value("modify"), mergeDoc.GetAllocator());
@@ -338,19 +344,27 @@ int VersionControlLayer::mergeFile(std::string file0,
                     // 如果2变了1没变，则保留2
                     else if(propertySame01 == true && propertySame02 == false)
                     {
+                        cout<<"-------same01==true,same02==false-----------"<<endl;
                         // 记录合并，保留版本2的值
+                        cout<<"-------get hash2-----------";
                         Value mergeObj(kObjectType);
-                        temp.Clear();
+                        //temp.Clear();
                         temp.SetString(hash2.c_str(), hash2.length());  // 获取版本2的hash号
                         mergeObj.AddMember("version", temp, mergeDoc.GetAllocator());  // 记录所保留的是哪个版本的值
+                        cout<<"-------done-----------"<<endl;
                         mergeObj.AddMember("action", Value("modify"), mergeDoc.GetAllocator());
                         mergeObj.AddMember("object", Value("text"), mergeDoc.GetAllocator());
+                        cout<<"-------get id-----------";
                         temp.CopyFrom(id1_value, mergeDoc.GetAllocator());
                         mergeObj.AddMember("shape_id", temp, mergeDoc.GetAllocator());
+                        cout<<"-------done-----------"<<endl;
+                        cout<<"-------get attr-----------";
                         temp.CopyFrom(*v_text2, mergeDoc.GetAllocator());
                         mergeObj.AddMember("attr_name", temp, mergeDoc.GetAllocator());
+                        cout<<"-------done-----------"<<endl;
 
                         merged_node.PushBack(mergeObj, mergeDoc.GetAllocator());  // 添加到 merge array
+                        cout<<"-------push done-----------"<<endl;
 
                         // 合并: nothing to do
                     }
@@ -393,7 +407,7 @@ int VersionControlLayer::mergeFile(std::string file0,
 
                         // 记录合并
                         Value mergeObj(kObjectType);
-                        temp.Clear();
+                        //temp.Clear();
                         temp.SetString(hash2.c_str(), hash2.length());  // 获取版本2的hash号
                         mergeObj.AddMember("version", temp, mergeDoc.GetAllocator());  // 记录所保留的是哪个版本的值
                         mergeObj.AddMember("action", Value("delete"), mergeDoc.GetAllocator());
@@ -417,7 +431,7 @@ int VersionControlLayer::mergeFile(std::string file0,
 
                     // 记录合并
                     Value mergeObj(kObjectType);
-                    temp.Clear();
+//                    temp.Clear();
                     temp.SetString(hash1.c_str(), hash2.length());  // 获取版本2的hash号
                     mergeObj.AddMember("version", temp, mergeDoc.GetAllocator());  // 记录所保留的是哪个版本的值
                     mergeObj.AddMember("action", Value("add"), mergeDoc.GetAllocator());
@@ -437,9 +451,11 @@ int VersionControlLayer::mergeFile(std::string file0,
         // <<<--------- nodelist1--------------
 
         // ------------ nodelist2----------->>>
+        cout<<"-------2-----------"<<endl;
         auto it = nodelist2->Begin();
         for(SizeType j = 0;j < (*nodelist2).Size(); j++, it++)
         {
+            cout<<"-------for-----------"<<endl;
 			// 声明用于保存冲突信息的对象
             Value conflictNode_j(kObjectType);
             conflictNode_j.AddMember("isDeleted", Value("false"), conflictDoc.GetAllocator());
@@ -466,6 +482,7 @@ int VersionControlLayer::mergeFile(std::string file0,
             }
             else  // 如果nodelist1中没有找到相同节点，则从nodelist0中找，以确定节点的增删情况
             {
+                cout<<"-------i<0-----------"<<endl;
                 // 在nodelist0中找到相同id的节点
                 int k = findNodeByID(*nodelist0, id2_string);  // 返回找到的节点下标
 
@@ -489,7 +506,7 @@ int VersionControlLayer::mergeFile(std::string file0,
 
                         // 记录合并
                         Value mergeObj(kObjectType);
-                        temp.Clear();
+//                        temp.Clear();
                         temp.SetString(hash1.c_str(), hash1.length());  // 获取版本1的hash号
                         mergeObj.AddMember("version", temp, mergeDoc.GetAllocator());  // 记录所保留的是哪个版本的值
                         mergeObj.AddMember("action", Value("delete"), mergeDoc.GetAllocator());
@@ -519,21 +536,21 @@ int VersionControlLayer::mergeFile(std::string file0,
         nodeQueue2.pop();
     }
 
-//    conflictDoc.AddMember("conflict_node", conflict_node, conflictDoc.GetAllocator());
-//    mergeDoc.AddMember("merged_navi", merged_navi, mergeDoc.GetAllocator());
-//    mergeDoc.AddMember("merged_node", merged_node, mergeDoc.GetAllocator());
+    conflictDoc.AddMember("conflict_node", conflict_node, conflictDoc.GetAllocator());
+    mergeDoc.AddMember("merged_navi", merged_navi, mergeDoc.GetAllocator());
+    mergeDoc.AddMember("merged_node", merged_node, mergeDoc.GetAllocator());
     
     StringBuffer buffer1;
     Writer<StringBuffer> writer1(buffer1);
     conflictDoc.Accept(writer1);
     // Output
     std::cout << buffer1.GetString() << std::endl;
-//
-//    StringBuffer buffer2;
-//    Writer<StringBuffer> writer2(buffer2);
-//    mergeDoc.Accept(writer2);
-//    // Output
-//    std::cout << buffer2.GetString() << std::endl;
+
+    StringBuffer buffer2;
+    Writer<StringBuffer> writer2(buffer2);
+    mergeDoc.Accept(writer2);
+    // Output
+    std::cout << buffer2.GetString() << std::endl;
 
     cout<<"------------------"<<endl;
 
@@ -668,17 +685,20 @@ bool VersionControlLayer::diffNodeTree(Value& node1, Value& node2)
  * @param dst_doc 文档2，同时也是保存结果的文档
  * @return
  */
-bool VersionControlLayer::mergeConnections(Value& src_conn, Value& dst_conn, Document& doc)
+bool VersionControlLayer::mergeConnections(Value& src_conn,
+                                           Value& dst_conn,
+                                           Value& filt_conn,
+                                           Document& doc)
 {
 //    Value& src_conn = src_doc["description"]["-diagram"]["connections"];
 //    Value& dst_conn = dst_doc["description"]["-diagram"]["connections"];
 //
     //Document tempDoc(kObjectType);
-    auto findDstByID = [&](Value& cid)->int
+    auto findByID = [&](Value& conn, Value& cid)->int
     {
-        for(SizeType i=0;i<dst_conn.Size();i++)
+        for(SizeType i=0;i<conn.Size();i++)
         {
-            Value& v_id2 = dst_conn[i]["@conn_id"];
+            Value& v_id2 = conn[i]["@conn_id"];
             if(cid == v_id2)
                 return i;
         }
@@ -689,18 +709,37 @@ bool VersionControlLayer::mergeConnections(Value& src_conn, Value& dst_conn, Doc
     {
         Value& id1 = src_conn[i]["@conn_id"];
 
-        int j = findDstByID(id1);
-        if(j < 0)
+        int k = findByID(filt_conn, id1);
+        if(k == -1)
         {
-            Value temp;
-            temp.CopyFrom(src_conn[i], doc.GetAllocator());
-            dst_conn.PushBack(temp, doc.GetAllocator());
+            int j = findByID(dst_conn, id1);
+            if(j < 0)
+            {
+                Value temp;
+                temp.CopyFrom(src_conn[i], doc.GetAllocator());
+                dst_conn.PushBack(temp, doc.GetAllocator());
 
-//            StringBuffer buffer1;
-//            Writer<StringBuffer> writer1(buffer1);
-//            dst_conn.Accept(writer1);
-//            // Output
-//            std::cout << buffer1.GetString() << std::endl;
+    //            StringBuffer buffer1;
+    //            Writer<StringBuffer> writer1(buffer1);
+    //            dst_conn.Accept(writer1);
+    //            // Output
+    //            std::cout << buffer1.GetString() << std::endl;
+            }
+        }
+    }
+
+    for(int i=0;i<filt_conn.Size();i++)
+    {
+        Value& id1 = filt_conn[i]["@conn_id"];
+
+        int k = findByID(src_conn, id1);
+        if(k == -1)
+        {
+            int j = findByID(dst_conn, id1);
+            if(j >= 0)
+            {
+                dst_conn.Erase(&dst_conn[j]);
+            }
         }
     }
 
@@ -713,41 +752,44 @@ bool VersionControlLayer::mergeConnections(Value& src_conn, Value& dst_conn, Doc
  * @param dst_anchor anchor2，同时也是保存结果的anchor
  * @return
  */
-bool VersionControlLayer::mergeAnchors(Value& src_anchor, Value& dst_anchor, Document& doc)
+bool VersionControlLayer::mergeAnchors(Value& src_anchor,
+                                       Value& dst_anchor,
+                                       Value& filt_anchor,
+                                       Document& doc)
 {
-    Value& v_src_incomming = src_anchor["@incommingConnections"];
-    Value& v_src_outgoing = src_anchor["@outgoingConnections"];
-    Value& v_dst_incomming = dst_anchor["@incommingConnections"];
-    Value& v_dst_outgoing = dst_anchor["@outgoingConnections"];
+    Value& v_src_incomming  = src_anchor["@incommingConnections"];
+    Value& v_src_outgoing   = src_anchor["@outgoingConnections"];
+    Value& v_dst_incomming  = dst_anchor["@incommingConnections"];
+    Value& v_dst_outgoing   = dst_anchor["@outgoingConnections"];
+    Value& v_filt_incomming = filt_anchor["@incommingConnections"];
+    Value& v_filt_outgoing  = filt_anchor["@outgoingConnections"];
 
     string s_src_incomming(v_src_incomming.GetString());
     string s_src_outgoing(v_src_outgoing.GetString());
     string s_dst_incomming(v_dst_incomming.GetString());
     string s_dst_outgoing(v_dst_outgoing.GetString());
+    string s_filt_incomming(v_filt_incomming.GetString());
+    string s_filt_outgoing(v_filt_outgoing.GetString());
 
-    vector<string> src_incomming, src_outgoing;
-    vector<string> dst_incomming, dst_outgoing;
+    set<string> srcIncomming, srcOutgoing;
+    set<string> mergeIncomming, mergeOutgoing, mergeFilter;
 
-    split(s_src_incomming, " ", &src_incomming);
-    split(s_src_outgoing, " ", &src_outgoing);
-    split(s_dst_incomming, " ", &dst_incomming);
-    split(s_dst_outgoing, " ", &dst_outgoing);
+    splitStringToSet(s_filt_incomming, " ", &mergeFilter, NULL);
+    splitStringToSet(s_dst_incomming, " ", &mergeIncomming, NULL);
+    splitStringToSet(s_src_incomming, " ", &srcIncomming, NULL);
+    filtId(&mergeIncomming, &mergeFilter, &srcIncomming);
+    splitStringToSet(s_src_incomming, " ", &mergeIncomming, &mergeFilter);
 
-    set<string> mergeIdSet;
+    mergeFilter.clear();
+    splitStringToSet(s_filt_outgoing, " ", &mergeFilter, NULL);
+    splitStringToSet(s_dst_outgoing, " ", &mergeOutgoing, NULL);
+    splitStringToSet(s_src_outgoing, " ", &srcOutgoing, NULL);
+    filtId(&mergeOutgoing, &mergeFilter, &srcOutgoing);
+    splitStringToSet(s_src_outgoing, " ", &mergeOutgoing, &mergeFilter);
 
     // ---------incomminng---------->>>
-    for(auto it=src_incomming.begin();it!=src_incomming.end();it++)
-    {
-        mergeIdSet.insert(*it);
-    }
-
-    for(auto it=dst_incomming.begin();it!=dst_incomming.end();it++)
-    {
-        mergeIdSet.insert(*it);
-    }
-
     string s_mergeIncomming = "";
-    for(auto it=mergeIdSet.begin();it!=mergeIdSet.end();it++)
+    for(auto it=mergeIncomming.begin();it!=mergeIncomming.end();it++)
     {
         s_mergeIncomming += *it;
         s_mergeIncomming += " ";
@@ -755,20 +797,9 @@ bool VersionControlLayer::mergeAnchors(Value& src_anchor, Value& dst_anchor, Doc
     v_dst_incomming.SetString(s_mergeIncomming.c_str(), s_mergeIncomming.size(), doc.GetAllocator());
     // <<<-------incomming--------------
 
-    mergeIdSet.clear();
     // ---------outgoing---------->>>
-    for(auto it=src_outgoing.begin();it!=src_outgoing.end();it++)
-    {
-        mergeIdSet.insert(*it);
-    }
-
-    for(auto it=dst_outgoing.begin();it!=dst_outgoing.end();it++)
-    {
-        mergeIdSet.insert(*it);
-    }
-
     string s_mergeOutgoing = "";
-    for(auto it=mergeIdSet.begin();it!=mergeIdSet.end();it++)
+    for(auto it=mergeOutgoing.begin();it!=mergeOutgoing.end();it++)
     {
         s_mergeOutgoing += *it;
         s_mergeOutgoing += " ";
@@ -787,9 +818,9 @@ bool VersionControlLayer::mergeAnchors(Value& src_anchor, Value& dst_anchor, Doc
 
 bool VersionControlLayer::removeConnections(Document& dst_doc, Value& anchors)
 {
-    Value& dst_conn = dst_doc["description"]["connections"];
+    Value& dst_conn = dst_doc["description"]["-diagram"]["connections"];
 
-    Value& v_incomming = anchors["@incomingConnections"];
+    Value& v_incomming = anchors["@incommingConnections"];
     Value& v_outgoing = anchors["@outgoingConnections"];
 
     string incomming(v_incomming.GetString());
@@ -854,14 +885,21 @@ bool VersionControlLayer::findNaviByHref(Value& navi, Value& href)
     return false;
 }
 
-void VersionControlLayer::split(string& s, const string delim, vector<string>* ret)
+void VersionControlLayer::splitStringToSet(string& s,
+                                const string delim,
+                                set<string>* ret,
+                                set<string>* filt)
 {
     size_t last = 0;
     size_t index=s.find_first_of(delim,last);
     while (index!=string::npos)
     {
-        //cout<<s.substr(last,index-last).c_str()<<endl;
-        ret->push_back(s.substr(last,index-last));
+        string cut = s.substr(last,index-last);
+        if(!filt || filt->find(cut) == filt->end())
+        {
+            ret->insert(cut);
+        }
+
         last=index+1;
         index=s.find_first_of(delim,last);
     }
@@ -869,5 +907,19 @@ void VersionControlLayer::split(string& s, const string delim, vector<string>* r
 //    {
 //        ret->push_back(s.substr(last,index-last));
 //    }
+}
+
+void VersionControlLayer::filtId(set<string>* ret,
+                                 set<string>* src,
+                                 set<string>* filt)
+{
+    for(auto sit = src->begin();sit!=src->end();sit++)
+    {
+        auto fit = filt->find(*sit);
+        if(fit == filt->end())
+        {
+            ret->erase(*sit);
+        }
+    }
 }
 // <<----------- tools --------------->>
