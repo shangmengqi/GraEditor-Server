@@ -522,6 +522,18 @@ int VersionControlLayer::mergeFile(std::string file0,
                 else  // added by 2
                 {
                     // nothing to do
+
+                    // 记录合并
+                    Value mergeObj(kObjectType);
+//                        temp.Clear();
+                    temp.SetString(hash2.c_str(), hash2.length());  // 获取版本2的hash号
+                    mergeObj.AddMember("version", temp, mergeDoc.GetAllocator());  // 记录所保留的是哪个版本的值
+                    mergeObj.AddMember("action", Value("add"), mergeDoc.GetAllocator());
+                    mergeObj.AddMember("object", Value("node"), mergeDoc.GetAllocator());
+                    temp.CopyFrom(id2_value, mergeDoc.GetAllocator());
+                    mergeObj.AddMember("shape_id", temp, mergeDoc.GetAllocator());
+
+                    merged_node.PushBack(mergeObj, mergeDoc.GetAllocator());  // 添加到 merge array
                 }
             }  // else
 
