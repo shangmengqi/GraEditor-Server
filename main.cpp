@@ -39,6 +39,7 @@ using namespace std ;
 //using namespace bson ;
 using namespace rapidjson;
 
+void tfunc(){cout<<"thread run"<<endl;}
 /*
  *
  */
@@ -151,7 +152,7 @@ int main(int argc, char** argv)
 //    std::string file2 = "file2";
     try
     {
-        versionControlLayer.mergeFile(file0,file1, "hash1",file2, "hash2","test");
+        //versionControlLayer.mergeFile(file0,file1, "hash1",file2, "hash2","test");
     }
     catch(...)
     {

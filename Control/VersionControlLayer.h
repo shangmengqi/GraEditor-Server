@@ -40,6 +40,9 @@ public:
     // 表示该任务最多有多少步骤，任务创建时赋值
     int stepWhole = 0;
 
+    // 
+    std::vector<std::string> filenames;
+
     // 每个线程执行完后执行一遍
     void stepForward()
     {
@@ -68,7 +71,7 @@ private:
     //
     //std::mutex _lock;
 
-    std::vector<std::string> filenames;
+    
 };
 
 class VersionControlLayer : public ControlLayer{
@@ -78,53 +81,53 @@ public:
     virtual ~VersionControlLayer();
 
     virtual std::string handleMessage(
-            HTTPMessage message,
+            HTTPMessage& message,
             std::vector<std::string>& filenames
             ) override;
 
     // 子线程执行，处理push-start命令，创建mission
-    void handlePushStart(HTTPMessage message);
+    void handlePushStart(HTTPMessage& message);
 
     // 子线程执行，处理push的文件
     // 如果mission提示是新版本，则直接存入数据库
     // 如果mission提示是可能冲突的版本，则进行比较
-    void handlePushFile(HTTPMessage message);
+    void handlePushFile(HTTPMessage& message);
     
     // 直接执行，处理push-result命令
     // 返回协议指定内容
     std::string handlePushResult(
-                HTTPMessage message,
+                HTTPMessage& message,
                 std::vector<std::string>& filenames
                 );
 
     // 直接执行，处理pull命令，先区分log和all
-    void handlePull(HTTPMessage message, std::vector<std::string>& filenames);
+    void handlePull(HTTPMessage& message, std::vector<std::string>& filenames);
 
     // 子线程执行，处理compare-start命令，创建mission
     // 如果是已提交的两个版本，则由该函数创建子线程，从数据库中获取两个版本进行文件比较
-    void handleCompareStart(HTTPMessage message);
+    void handleCompareStart(HTTPMessage& message);
     // 子线程执行，从message获取文件内容，与数据库中另一版本进行文件比较
-    void handleCompareFile(HTTPMessage message);
+    void handleCompareFile(HTTPMessage& message);
     // 直接执行，处理compare-result
     // 返回协议指定内容
     std::string handleCompareResult(
-                HTTPMessage message,
+                HTTPMessage& message,
                 std::vector<std::string>& filenames
                 );
 
     // save to filename.conflict    e.g. test.xml.conflict
-    int compareFile(std::string file1, std::string file2, std::string filename);
+    int compareFile(std::string& file1, std::string& file2, std::string filename);
     // save to filename.merge; if no conflict, save as bson into DB
-    int mergeFile(std::string file0,
-                    std::string file1,
+    int mergeFile(std::string& file0,
+                    std::string& file1,
                     std::string hash1,
-                    std::string file2,
+                    std::string& file2,
                     std::string hash2,
                     std::string filename);
 
 private:
     // 保存任务，key为任务对应的hash串
-    std::map<std::string, Mission> missionMap;
+    std::map<std::string, Mission*> missionMap;
 
     // 寻找指定id的节点
     int findNodeByID(rapidjson::Value& nodes, std::string id);

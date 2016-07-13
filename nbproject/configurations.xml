@@ -166,11 +166,16 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <compileType>
+        <cTool>
+          <commandLine>-lpthread</commandLine>
+        </cTool>
         <ccTool>
+          <architecture>2</architecture>
           <standard>8</standard>
           <incDir>
             <pElem>Thirdpart/sdbdriver/include</pElem>
           </incDir>
+          <commandLine>-lpthread</commandLine>
         </ccTool>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/graeditor-server</output>

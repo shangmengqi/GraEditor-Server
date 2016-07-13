@@ -30,7 +30,7 @@ public:
     virtual ~ControlLayer();
 
     virtual std::string handleMessage(
-            HTTPMessage message,
+            HTTPMessage& message,
             std::vector<std::string>& filenames
             ) = 0;
 

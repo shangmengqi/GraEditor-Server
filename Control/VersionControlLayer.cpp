@@ -19,6 +19,7 @@
 
 #include <queue>
 #include <set>
+#include <fstream>
 //#include <string>
 
 using namespace std;
@@ -44,22 +45,22 @@ VersionControlLayer::~VersionControlLayer()
 * @param filenames 处理结果涉及的多个文件路径名称（如果有文件）
 * @return 处理结果
 */
-std::string VersionControlLayer::handleMessage(HTTPMessage message,
+std::string VersionControlLayer::handleMessage(HTTPMessage& message,
                                                vector<std::string>& filenames)
 {
     if(message.command == "push")
     {
         if(message.step == "start")
         {
-
+            handlePushStart(message);
         }
         else if(message.step == "result")
         {
-
+            handlePushResult(message, filenames);
         }
         else  // step == [1-n]
         {
-
+            handlePushFile(message);
         }
     }
     else if(message.command == "compare")
@@ -70,24 +71,104 @@ std::string VersionControlLayer::handleMessage(HTTPMessage message,
     {
 
     }
-
-    // 返回结果
-    filenames.push_back("/home/cyf/testfiles/test.txt");
-    filenames.push_back("/home/cyf/testfiles/ttt");
-    filenames.push_back("/home/cyf/testfiles/test.txt");
     return "OK";
 }
 
-int VersionControlLayer::compareFile(std::string file1, std::string file2,
+void VersionControlLayer::handlePushStart(HTTPMessage& message)
+{
+    // 创建任务
+    Mission* p_mission = new Mission();
+    p_mission->base = message.base;
+    p_mission->stepWhole = message.filecount;
+
+    // TODO: 根据版本关系判断是否需要差异比较
+    p_mission->needCompare = true;
+
+    // 添加任务
+    missionMap.insert(pair<string, Mission*>(message.commit, p_mission));
+}
+
+void VersionControlLayer::handlePushFile(HTTPMessage& message)
+{
+    // 从map中找到相关的任务
+    auto it = missionMap.find(message.commit);
+    // 如果该任务存在
+    if(it != missionMap.end())
+    {
+        auto p_mission = it->second;
+        // 判断是否需要差异比较
+        if(p_mission->needCompare)  // 如果需要差异比较
+        {
+            // TODO: 去数据库找对应版本的对应文件、版本编号
+            string hash1 = "hash1";
+
+            // ----------------- TEMP --------------------
+            string filename = "/home/cyf/midfile1.txt";
+            ifstream ifs1(filename.c_str());  // 创建文件流
+            std::string buf;
+            std::string file1 = "";
+            while(getline(ifs1, buf))  // 读文件
+            {
+                file1 += "\n";
+                file1 += buf;
+            }
+
+            filename = "/home/cyf/midfile0.txt";
+            ifstream ifs0(filename.c_str());
+            buf = "";
+            std::string file0 = "";
+            while(getline(ifs0, buf))
+            {
+                file0 += "\n";
+                file0 += buf;
+            }
+            // ------------------ TEMP -------------------
+
+            // 创建线程去处理合并
+            thread t([&](){
+                mergeFile(file0, file1, hash1, message.fileContent, message.commit, message.fileName);
+                p_mission->stepForward();  // file merge over
+            });
+
+            // 向任务中添加该文件的结果文件名
+            p_mission->addFile(message.fileName+".res");
+
+        }
+    }
+}
+
+string VersionControlLayer::handlePushResult(HTTPMessage& message, std::vector<std::string>& filenames)
+{
+    // 从map中找到相关的任务
+    auto it = missionMap.find(message.commit);
+    // 如果该任务存在
+    if(it != missionMap.end())
+    {
+        auto p_mission = it->second;
+        
+        // TODO: 检查是否完成
+        if(p_mission->isOver())  // 如果完成
+        {
+            // 从任务中获取结果文件名，加入filenames
+            filenames.insert(filenames.begin(), p_mission->filenames.begin(), p_mission->filenames.end());
+
+            return "OK";
+        }
+        else return "processing";
+    }
+    return "error";
+}
+
+int VersionControlLayer::compareFile(std::string& file1, std::string& file2,
                                      std::string filename)
 {
     return 0;
 }
 
-int VersionControlLayer::mergeFile(std::string file0,
-                                   std::string file1,
+int VersionControlLayer::mergeFile(std::string& file0,
+                                   std::string& file1,
                                    std::string hash1,
-                                   std::string file2,
+                                   std::string& file2,
                                    std::string hash2,
                                    std::string filename)
 {
@@ -109,6 +190,7 @@ int VersionControlLayer::mergeFile(std::string file0,
     doc2.Parse(file2.c_str());
 
     // ------------------navi--------------->>>
+    assert(doc0.IsObject());
     Value& navi0 = doc0["description"]["-diagram"]["navi"];
     Value& navi1 = doc1["description"]["-diagram"]["navi"];
     Value& navi2 = doc2["description"]["-diagram"]["navi"];
@@ -571,6 +653,8 @@ int VersionControlLayer::mergeFile(std::string file0,
     doc2.Accept(writer3);
     // Output
     std::cout << buffer3.GetString() << std::endl;
+
+    // TODO: 将conflictDoc 和 mergeDoc 存入以filename命名的结果文件
 
     cout<<"return "<<endl;
     return 0;

@@ -31,7 +31,7 @@ public:
     std::string commit = "";  // 提交的版本hash值
     std::string base = "";  //
     std::string description = "";  //
-    int filecount = 0;  //
+    int filecount = 0;  // 记录指令将一共提交多少文件
     std::string fileName = "";  // 文件名，如果有文件
     std::string fileContent = "";  // 文件内容
     std::string step = "";  // push||compare:start, 1~n, result; pull:log, all;

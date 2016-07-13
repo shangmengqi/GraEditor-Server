@@ -47,11 +47,11 @@ OBJECTFILES= \
 
 
 # C Compiler Flags
-CFLAGS=
+CFLAGS=-lpthread
 
 # CC Compiler Flags
-CCFLAGS=
-CXXFLAGS=
+CCFLAGS=-m64 -lpthread
+CXXFLAGS=-m64 -lpthread
 
 # Fortran Compiler Flags
 FFLAGS=
