@@ -13,7 +13,7 @@
  * 
  * 最后修改于:[请填写]
  */
-
+#pragma once
 #ifndef GLOBAL_HPP
 #define GLOBAL_HPP
 

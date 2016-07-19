@@ -147,17 +147,17 @@ int main(int argc, char** argv)
     }
     //std::cout<<file0<<endl;
 
-//    std::string file0 = "file0";
-//    std::string file1 = "file1";
-//    std::string file2 = "file2";
-    try
-    {
-        //versionControlLayer.mergeFile(file0,file1, "hash1",file2, "hash2","test");
-    }
-    catch(...)
-    {
-        cout<<"erro"<<endl;
-    }
+
+
+    //versionControlLayer.mergeFile(file0,file1, "hash1",file2, "hash2","/home/cyf/test");
+
+        thread t([&](){
+                versionControlLayer.mergeFile(file0, file1, "hash1", file2, "hash2", "test");
+            });
+            t.detach();
+        
+        
+
 
     // ------------声明--------------
     // 声明各个模块
@@ -186,11 +186,12 @@ int main(int argc, char** argv)
 
     // 初始化各个模块
     versionModule.netLayer = &versionNetLayer;
-    //versionModule.controlLayer = &versionControlLayer;
+    versionModule.controlLayer = &versionControlLayer;
     //versionModule.modelLayer = &modelLayer;
     versionModule.init();
 
     cout<<"loop"<<endl;
+
     versionNetLayer.startLoop();
     return 0;
 }

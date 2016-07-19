@@ -117,11 +117,11 @@ public:
 
     // save to filename.conflict    e.g. test.xml.conflict
     int compareFile(std::string& file1, std::string& file2, std::string filename);
-    // save to filename.merge; if no conflict, save as bson into DB
-    int mergeFile(std::string& file0,
-                    std::string& file1,
+    // save to filename.merge; if no conflict, save as bson into DB || TODO: maybe use ref for file0,1,2
+    int mergeFile(std::string file0,
+                    std::string file1,
                     std::string hash1,
-                    std::string& file2,
+                    std::string file2,
                     std::string hash2,
                     std::string filename);
 
@@ -170,6 +170,8 @@ private:
     
     // transfer node array into a map
     void createNodesMap(rapidjson::Value& nodelist, std::map<std::string, int> *nodeMap);
+
+    int saveStringToFile(std::string content, std::string path);
 
 };
 

@@ -57,6 +57,7 @@ std::string VersionModule::handleMessage(HTTPMessage message, vector<std::string
 {
     cout<<"handle message"<<endl;
     // 交给控制层函数
+    controlLayer->handleMessage(message, filenames);
 
     // 返回结果
     filenames.push_back("/home/cyf/testfiles/test.txt");

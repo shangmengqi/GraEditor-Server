@@ -116,7 +116,7 @@ void NetLayer::rootRequestHandler(evhttp_request* req, void* arg)
     // 添加回复语句
     evbuffer_add_printf(buf, returnPrint.data());
 
-    // 如果filenames不为空，则打开filenames指定的所有文件并add到回复中
+/*    // 如果filenames不为空，则打开filenames指定的所有文件并add到回复中
     int filecount = filenames.size();
     for(int i=0;i<filecount;i++)
     {
@@ -138,7 +138,7 @@ void NetLayer::rootRequestHandler(evhttp_request* req, void* arg)
             close(fd);
         }
     }
-
+*/
     // 发送回复
     evhttp_send_reply(req, HTTP_OK, "OK", buf);
 }

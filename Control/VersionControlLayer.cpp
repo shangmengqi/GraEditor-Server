@@ -50,6 +50,7 @@ std::string VersionControlLayer::handleMessage(HTTPMessage& message,
 {
     if(message.command == "push")
     {
+        cout<<"handle push"<<endl;
         if(message.step == "start")
         {
             handlePushStart(message);
@@ -124,14 +125,26 @@ void VersionControlLayer::handlePushFile(HTTPMessage& message)
             }
             // ------------------ TEMP -------------------
 
-            // 创建线程去处理合并
-            thread t([&](){
-                mergeFile(file0, file1, hash1, message.fileContent, message.commit, message.fileName);
-                p_mission->stepForward();  // file merge over
-            });
+            // test
+            filename = "/home/cyf/midfile2.txt";
+            ifstream ifs2(filename.c_str());
+            buf = "";
+            std::string file2 = "";
+            while(getline(ifs2, buf))
+            {
+                file2 += "\n";
+                file2 += buf;
+            }
+            //test
+
+            // 处理合并
+//            mergeFile(file0, file1, hash1, message.fileContent, message.commit, message.fileName);
+            mergeFile(file0, file1, hash1, file2, message.commit, message.fileName);
+            p_mission->stepForward();  // file merge over
+                
 
             // 向任务中添加该文件的结果文件名
-            p_mission->addFile(message.fileName+".res");
+            p_mission->addFile(message.fileName);
 
         }
     }
@@ -146,7 +159,7 @@ string VersionControlLayer::handlePushResult(HTTPMessage& message, std::vector<s
     {
         auto p_mission = it->second;
         
-        // TODO: 检查是否完成
+        // 检查是否完成
         if(p_mission->isOver())  // 如果完成
         {
             // 从任务中获取结果文件名，加入filenames
@@ -165,17 +178,19 @@ int VersionControlLayer::compareFile(std::string& file1, std::string& file2,
     return 0;
 }
 
-int VersionControlLayer::mergeFile(std::string& file0,
-                                   std::string& file1,
+int VersionControlLayer::mergeFile(std::string file0,
+                                   std::string file1,
                                    std::string hash1,
-                                   std::string& file2,
+                                   std::string file2,
                                    std::string hash2,
                                    std::string filename)
 {
+    cout<<"merge file"<<endl;
     // 
     Document conflictDoc, mergeDoc;
     conflictDoc.SetObject();
     mergeDoc.SetObject();
+    cout<<"set obj over"<<endl;
 
     Value conflict_node, merged_node, merged_navi;
     conflict_node.SetArray();
@@ -183,12 +198,15 @@ int VersionControlLayer::mergeFile(std::string& file0,
     merged_navi.SetArray();
     assert(merged_node.IsArray());
 
+    cout<<"set array over"<<endl;
+
     // 将json字符串转成文档
     Document doc0, doc1, doc2;
     doc0.Parse(file0.c_str());
     doc1.Parse(file1.c_str());
     doc2.Parse(file2.c_str());
 
+    cout<<"navi start"<<endl;
     // ------------------navi--------------->>>
     assert(doc0.IsObject());
     Value& navi0 = doc0["description"]["-diagram"]["navi"];
@@ -295,6 +313,7 @@ int VersionControlLayer::mergeFile(std::string& file0,
     }  // for
     // <<<---------------navi------------------
 
+    cout<<"navi over, conn start"<<endl;
     // -----------------connections--------->>>
     Value& src_conn = doc1["description"]["-diagram"]["connections"];
     Value& dst_conn = doc2["description"]["-diagram"]["connections"];
@@ -307,6 +326,7 @@ int VersionControlLayer::mergeFile(std::string& file0,
 //    // Output
 //    std::cout << bufferConn.GetString() << std::endl;
     // <<<--------------connections------------
+    cout<<"conn over"<<endl;
 
     queue<Value*> nodeQueue0;
     queue<Value*> nodeQueue1;
@@ -322,7 +342,7 @@ int VersionControlLayer::mergeFile(std::string& file0,
     nodeQueue1.push(&n1);
     nodeQueue2.push(&n2);
 
-    while(!nodeQueue0.empty())
+    while(false)//while(!nodeQueue0.empty())
     {
         cout<<"-------while-----------"<<endl;
         // 从队列获取nodelist
@@ -629,32 +649,38 @@ int VersionControlLayer::mergeFile(std::string& file0,
         nodeQueue1.pop();
         nodeQueue2.pop();
     }
+    cout<<"node over"<<endl;
 
+    // add result to responding doc
     conflictDoc.AddMember("conflict_node", conflict_node, conflictDoc.GetAllocator());
     mergeDoc.AddMember("merged_navi", merged_navi, mergeDoc.GetAllocator());
     mergeDoc.AddMember("merged_node", merged_node, mergeDoc.GetAllocator());
-    
-    StringBuffer buffer1;
-    Writer<StringBuffer> writer1(buffer1);
+
+    // 将conflictDoc 和 mergeDoc 存入以filename命名的结果文件
+    StringBuffer conflictDocBuffer;
+    Writer<StringBuffer> writer1(conflictDocBuffer);
     conflictDoc.Accept(writer1);
     // Output
-    std::cout << buffer1.GetString() << std::endl;
+    //std::cout << conflictDocBuffer.GetString() << std::endl;
+    saveStringToFile(conflictDocBuffer.GetString(), filename+".conflict");
+    cout<<"save conflict over"<<endl;
 
-    StringBuffer buffer2;
-    Writer<StringBuffer> writer2(buffer2);
+    StringBuffer mergeDocBuffer;
+    Writer<StringBuffer> writer2(mergeDocBuffer);
     mergeDoc.Accept(writer2);
     // Output
-    std::cout << buffer2.GetString() << std::endl;
+    //std::cout << mergeDocBuffer.GetString() << std::endl;
+    saveStringToFile(mergeDocBuffer.GetString(), filename+".merge");
 
     cout<<"------------------"<<endl;
 
-    StringBuffer buffer3;
-    Writer<StringBuffer> writer3(buffer3);
+    StringBuffer doc2Buffer;
+    Writer<StringBuffer> writer3(doc2Buffer);
     doc2.Accept(writer3);
     // Output
-    std::cout << buffer3.GetString() << std::endl;
+    std::cout << doc2Buffer.GetString() << std::endl;
+    saveStringToFile(mergeDocBuffer.GetString(), filename+".res");
 
-    // TODO: 将conflictDoc 和 mergeDoc 存入以filename命名的结果文件
 
     cout<<"return "<<endl;
     return 0;
@@ -1016,6 +1042,22 @@ void VersionControlLayer::filtId(set<string>* ret,
         {
             ret->erase(*sit);
         }
+    }
+}
+
+int VersionControlLayer::saveStringToFile(std::string content, std::string path)
+{
+    ofstream of(path);
+    if(of.is_open())
+    {
+        of<<content;
+        of.close();
+        cout<<"close"<<endl;
+        return 0;
+    }
+    else
+    {
+        return -1;
     }
 }
 // <<----------- tools --------------->>
