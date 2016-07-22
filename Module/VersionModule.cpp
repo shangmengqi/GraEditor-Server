@@ -59,10 +59,10 @@ std::string VersionModule::handleMessage(HTTPMessage message, vector<std::string
     // 交给控制层函数
     controlLayer->handleMessage(message, filenames);
 
-    // 返回结果
-    filenames.push_back("/home/cyf/testfiles/test.txt");
-    filenames.push_back("/home/cyf/testfiles/ttt");
-    filenames.push_back("/home/cyf/testfiles/test.txt");
+//    // test返回结果
+//    filenames.push_back("/home/cyf/testfiles/test.txt");
+//    filenames.push_back("/home/cyf/testfiles/ttt");
+//    filenames.push_back("/home/cyf/testfiles/test.txt");
     return "OK";
 }
 

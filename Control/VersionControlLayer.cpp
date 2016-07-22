@@ -50,17 +50,20 @@ std::string VersionControlLayer::handleMessage(HTTPMessage& message,
 {
     if(message.command == "push")
     {
-        cout<<"handle push"<<endl;
+        cout<<"handle push ";
         if(message.step == "start")
         {
+            cout<<"start"<<endl;
             handlePushStart(message);
         }
         else if(message.step == "result")
         {
+            cout<<"result"<<endl;
             handlePushResult(message, filenames);
         }
         else  // step == [1-n]
         {
+            cout<<"step "<<message.step<<endl;
             handlePushFile(message);
         }
     }
@@ -138,9 +141,14 @@ void VersionControlLayer::handlePushFile(HTTPMessage& message)
             //test
 
             // 处理合并
-//            mergeFile(file0, file1, hash1, message.fileContent, message.commit, message.fileName);
-            mergeFile(file0, file1, hash1, file2, message.commit, message.fileName);
-            p_mission->stepForward();  // file merge over
+            thread t([=](){  // ATTENTION: should not be [&], coz handlePushFile will free the vars
+                cout<<"layer!"<<endl;
+                //            mergeFile(file0, file1, hash1, message.fileContent, message.commit, message.fileName);
+                mergeFile(file0, file1, hash1, file2, message.commit, message.fileName);
+
+                p_mission->stepForward();  // file merge over
+            });
+            t.detach();
                 
 
             // 向任务中添加该文件的结果文件名
@@ -163,7 +171,12 @@ string VersionControlLayer::handlePushResult(HTTPMessage& message, std::vector<s
         if(p_mission->isOver())  // 如果完成
         {
             // 从任务中获取结果文件名，加入filenames
-            filenames.insert(filenames.begin(), p_mission->filenames.begin(), p_mission->filenames.end());
+            for(auto filename : p_mission->filenames)
+            {
+                filenames.push_back(filename + ".conflict");
+                filenames.push_back(filename + ".merge");
+                filenames.push_back(filename + ".res");
+            }
 
             return "OK";
         }
@@ -178,12 +191,12 @@ int VersionControlLayer::compareFile(std::string& file1, std::string& file2,
     return 0;
 }
 
-int VersionControlLayer::mergeFile(std::string file0,
-                                   std::string file1,
-                                   std::string hash1,
-                                   std::string file2,
-                                   std::string hash2,
-                                   std::string filename)
+int VersionControlLayer::mergeFile(const std::string& file0,
+                                   const std::string& file1,
+                                   const std::string& hash1,
+                                   const std::string& file2,
+                                   const std::string& hash2,
+                                   const std::string& filename)
 {
     cout<<"merge file"<<endl;
     // 
@@ -342,7 +355,7 @@ int VersionControlLayer::mergeFile(std::string file0,
     nodeQueue1.push(&n1);
     nodeQueue2.push(&n2);
 
-    while(false)//while(!nodeQueue0.empty())
+    while(!nodeQueue0.empty())
     {
         cout<<"-------while-----------"<<endl;
         // 从队列获取nodelist
@@ -679,7 +692,7 @@ int VersionControlLayer::mergeFile(std::string file0,
     doc2.Accept(writer3);
     // Output
     std::cout << doc2Buffer.GetString() << std::endl;
-    saveStringToFile(mergeDocBuffer.GetString(), filename+".res");
+    saveStringToFile(doc2Buffer.GetString(), filename+".res");
 
 
     cout<<"return "<<endl;
@@ -1053,6 +1066,7 @@ int VersionControlLayer::saveStringToFile(std::string content, std::string path)
         of<<content;
         of.close();
         cout<<"close"<<endl;
+        cout<<"path:"<<path<<endl;
         return 0;
     }
     else

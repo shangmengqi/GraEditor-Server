@@ -24,6 +24,7 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <iostream>
 #include "../Thirdpart/rapidjson/document.h"  // rapidjson
 #include "../Thirdpart/rapidjson/stringbuffer.h"  // rapidjson
 #include "../Thirdpart/rapidjson/writer.h"  // rapidjson
@@ -54,6 +55,7 @@ public:
     // 判断该任务是否已经完成
     bool isOver()
     {
+        std::cout<<"stepNow:"<<stepNow<<"/"<<stepWhole<<std::endl;
         return stepNow == stepWhole;
     }
 
@@ -118,12 +120,12 @@ public:
     // save to filename.conflict    e.g. test.xml.conflict
     int compareFile(std::string& file1, std::string& file2, std::string filename);
     // save to filename.merge; if no conflict, save as bson into DB || TODO: maybe use ref for file0,1,2
-    int mergeFile(std::string file0,
-                    std::string file1,
-                    std::string hash1,
-                    std::string file2,
-                    std::string hash2,
-                    std::string filename);
+    int mergeFile(const std::string& file0,
+                    const std::string& file1,
+                    const std::string& hash1,
+                    const std::string& file2,
+                    const std::string& hash2,
+                    const std::string& filename);
 
 private:
     // 保存任务，key为任务对应的hash串

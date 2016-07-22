@@ -108,7 +108,7 @@ int main(int argc, char** argv)
     std::cout << buffer.GetString() << std::endl;
 
     VersionControlLayer versionControlLayer;
-    string filename = "/home/cyf/midfile1.txt";
+/*    string filename = "/home/cyf/midfile1.txt";
     ifstream ifs1(filename.c_str());
     bool isopen = ifs1.is_open();
 
@@ -147,14 +147,14 @@ int main(int argc, char** argv)
     }
     //std::cout<<file0<<endl;
 
-
+*/
 
     //versionControlLayer.mergeFile(file0,file1, "hash1",file2, "hash2","/home/cyf/test");
 
-        thread t([&](){
-                versionControlLayer.mergeFile(file0, file1, "hash1", file2, "hash2", "test");
-            });
-            t.detach();
+//        thread t([&](){
+//                versionControlLayer.mergeFile(file0, file1, "hash1", file2, "hash2", "test");
+//            });
+//            t.detach();
         
         
 
