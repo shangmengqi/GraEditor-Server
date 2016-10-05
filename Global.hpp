@@ -78,7 +78,7 @@ public:
             ss>>this->filecount;
             ss.clear();
         }
-        else if(key == "filename")
+        else if(key == "fileName")
         {
             this->fileName = value;
         }

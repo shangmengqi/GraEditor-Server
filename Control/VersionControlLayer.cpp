@@ -48,6 +48,7 @@ VersionControlLayer::~VersionControlLayer()
 std::string VersionControlLayer::handleMessage(HTTPMessage& message,
                                                vector<std::string>& filenames)
 {
+    string res = "OK";
     if(message.command == "push")
     {
         cout<<"handle push ";
@@ -59,7 +60,7 @@ std::string VersionControlLayer::handleMessage(HTTPMessage& message,
         else if(message.step == "result")
         {
             cout<<"result"<<endl;
-            handlePushResult(message, filenames);
+            res = handlePushResult(message, filenames);
         }
         else  // step == [1-n]
         {
@@ -75,7 +76,8 @@ std::string VersionControlLayer::handleMessage(HTTPMessage& message,
     {
 
     }
-    return "OK";
+    cout<<"---return:---"<<res<<endl;
+    return res;
 }
 
 void VersionControlLayer::handlePushStart(HTTPMessage& message)
@@ -107,7 +109,8 @@ void VersionControlLayer::handlePushFile(HTTPMessage& message)
             string hash1 = "hash1";
 
             // ----------------- TEMP --------------------
-            string filename = "/home/cyf/midfile1.txt";
+            string filename = "/home/chenyufei/"+message.fileName+".1";
+            cout<<"open file:"<<filename<<endl;
             ifstream ifs1(filename.c_str());  // 创建文件流
             std::string buf;
             std::string file1 = "";
@@ -117,7 +120,8 @@ void VersionControlLayer::handlePushFile(HTTPMessage& message)
                 file1 += buf;
             }
 
-            filename = "/home/cyf/midfile0.txt";
+            filename = "/home/chenyufei/"+message.fileName+".0";
+            cout<<"open file:"<<filename<<endl;
             ifstream ifs0(filename.c_str());
             buf = "";
             std::string file0 = "";
@@ -128,7 +132,7 @@ void VersionControlLayer::handlePushFile(HTTPMessage& message)
             }
             // ------------------ TEMP -------------------
 
-            // test
+/*            // test
             filename = "/home/cyf/midfile2.txt";
             ifstream ifs2(filename.c_str());
             buf = "";
@@ -139,12 +143,12 @@ void VersionControlLayer::handlePushFile(HTTPMessage& message)
                 file2 += buf;
             }
             //test
-
+*/
             // 处理合并
             thread t([=](){  // ATTENTION: should not be [&], coz handlePushFile will free the vars
                 cout<<"layer!"<<endl;
-                //            mergeFile(file0, file1, hash1, message.fileContent, message.commit, message.fileName);
-                mergeFile(file0, file1, hash1, file2, message.commit, message.fileName);
+                mergeFile(file0, file1, hash1, message.fileContent, message.commit, message.fileName);
+//                mergeFile(file0, file1, hash1, file2, message.commit, message.fileName);
 
                 p_mission->stepForward();  // file merge over
             });
@@ -178,7 +182,9 @@ string VersionControlLayer::handlePushResult(HTTPMessage& message, std::vector<s
                 filenames.push_back(filename + ".res");
             }
 
-            return "OK";
+	    string res = "OK=========\n" + message.commit;
+            missionMap.erase(it);
+            return res;
         }
         else return "processing";
     }
@@ -560,7 +566,10 @@ int VersionControlLayer::mergeFile(const std::string& file0,
 
             // 将 conflictNode_i 存入 conflict_node 数组
             if(conflictHappened == true)
+            {
+                conflictNode_i.AddMember("conflict_key", conflict_key, conflictDoc.GetAllocator());
                 conflict_node.PushBack(conflictNode_i, conflictDoc.GetAllocator());
+            }
 
         }  // for
         // <<<--------- nodelist1--------------
@@ -892,11 +901,11 @@ bool VersionControlLayer::mergeAnchors(Value& src_anchor,
                                        Value& filt_anchor,
                                        Document& doc)
 {
-    Value& v_src_incomming  = src_anchor["@incommingConnections"];
+    Value& v_src_incomming  = src_anchor["@incomingConnections"];
     Value& v_src_outgoing   = src_anchor["@outgoingConnections"];
-    Value& v_dst_incomming  = dst_anchor["@incommingConnections"];
+    Value& v_dst_incomming  = dst_anchor["@incomingConnections"];
     Value& v_dst_outgoing   = dst_anchor["@outgoingConnections"];
-    Value& v_filt_incomming = filt_anchor["@incommingConnections"];
+    Value& v_filt_incomming = filt_anchor["@incomingConnections"];
     Value& v_filt_outgoing  = filt_anchor["@outgoingConnections"];
 
     string s_src_incomming(v_src_incomming.GetString());
@@ -955,7 +964,7 @@ bool VersionControlLayer::removeConnections(Document& dst_doc, Value& anchors)
 {
     Value& dst_conn = dst_doc["description"]["-diagram"]["connections"];
 
-    Value& v_incomming = anchors["@incommingConnections"];
+    Value& v_incomming = anchors["@incomingConnections"];
     Value& v_outgoing = anchors["@outgoingConnections"];
 
     string incomming(v_incomming.GetString());

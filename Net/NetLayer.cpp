@@ -106,6 +106,7 @@ void NetLayer::rootRequestHandler(evhttp_request* req, void* arg)
     vector<string> filenames;
     cout<<"handle start"<<endl;
     returnPrint = layer->module->handleMessage(message, filenames);
+    cout<<"returnPrint:"<<returnPrint<<endl;
 
     // 创建回复
     struct evbuffer *buf;
@@ -114,7 +115,7 @@ void NetLayer::rootRequestHandler(evhttp_request* req, void* arg)
         err(1, "failed to create response buffer");
 
     // 添加回复语句
-    evbuffer_add_printf(buf, returnPrint.data());
+    evbuffer_add_printf(buf, returnPrint.c_str());
 
     // 如果filenames不为空，则打开filenames指定的所有文件并add到回复中
     int filecount = filenames.size();
@@ -134,7 +135,7 @@ void NetLayer::rootRequestHandler(evhttp_request* req, void* arg)
             fstat(fd, &st);
             
             // 添加到回复
-            evbuffer_add_printf(buf, "\n");
+            evbuffer_add_printf(buf, "=========\n");  // TODO: add some head to split files
             evbuffer_add_file(buf,fd,0,st.st_size);
             close(fd);
         }
@@ -223,7 +224,7 @@ int NetLayer::decodePost(std::string& input_buffer, HTTPMessage* message)
             else // key为file时需要处理filename
             {
                 // 获取filename的值
-                start = input_buffer.find("filename=\"", index);
+
                 start += string("filename=\"").size();
                 end = input_buffer.find("\"", start);
 
