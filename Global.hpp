@@ -20,6 +20,8 @@
 #include <err.h>
 #include <iostream>
 #include <sstream>
+#include <vector>
+#include <map>
 
 #define RES_OK      0x00;
 #define RES_ERROR   0x01;
@@ -100,6 +102,85 @@ public:
         }
         return RES_OK;
     }
+};
+
+// DEBUG: 暂时使用的替代数据库，存储节点
+class DataNode
+{
+public:
+    std::string version;
+    std::vector<std::string> parents;
+    std::vector<std::string> childs;
+    std::vector<std::string> filenames;
+};
+
+// DEBUG: 暂时使用的替代数据库的东西
+class VersionData
+{
+private:
+    VersionData(){};
+    std::map<std::string, DataNode*> nodes;
+    
+public:
+    static VersionData& Instance()
+    {
+        static VersionData data;
+        return data;
+    }
+    
+    std::string getChild(std::string baseVersion)
+    {
+        auto it = nodes.find(baseVersion);
+        if(it == nodes.end())  // 如果指定的base版本不存在
+        {
+            return "nobase";
+        }
+        else
+        {
+            // 如果指定的base版本没有其他孩子节点
+            if(it->second->childs.size() == 0)
+            {
+                return "nochild";
+            }
+            else
+            {
+                // 暂时先返回唯一一个子节点
+                return it->second->childs[0];
+            }
+        }
+    }
+    
+    
+    int saveVersion(std::string thisVersion, std::string baseVersion)
+    {
+        auto baseIt = nodes.find(baseVersion);
+        
+        DataNode* node = new DataNode();
+        
+        node->version = thisVersion;
+        if(baseIt != nodes.end())
+        {
+            baseIt->second->childs.push_back(thisVersion);
+            node->parents.push_back(baseVersion);
+        }
+        
+        nodes.insert(std::pair<std::string,DataNode*>(thisVersion,node));
+        
+        return 0;
+    }
+    
+    // 暂时先给每个节点只保存一个文件
+    int addFile(std::string version, std::string filename)
+    {
+        auto it = nodes.find(version);
+        if(it != nodes.end())
+        {
+            it->second->filenames.push_back(filename);
+        }
+        
+        return 0;
+    }
+    
 };
 
 #endif /* GLOBAL_HPP */

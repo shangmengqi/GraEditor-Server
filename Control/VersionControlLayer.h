@@ -174,6 +174,9 @@ private:
     void createNodesMap(rapidjson::Value& nodelist, std::map<std::string, int> *nodeMap);
 
     int saveStringToFile(std::string content, std::string path);
+    
+    // 检查当前提交的版本是否有并列的版本，确定是否需要比较并合并
+    bool thisVersionHasBrother(std::string thisVersion, std::string baseVersion);
 
 };
 

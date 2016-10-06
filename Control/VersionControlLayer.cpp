@@ -88,7 +88,12 @@ void VersionControlLayer::handlePushStart(HTTPMessage& message)
     p_mission->stepWhole = message.filecount;
 
     // TODO: 根据版本关系判断是否需要差异比较
-    p_mission->needCompare = true;
+    string brother = VersionData::Instance().getChild(message.base);
+    if(brother == "nobase" || brother == "nochild")
+    {
+        p_mission->needCompare = false;
+        VersionData::Instance().saveVersion(message.commit,message.base);
+    }
 
     // 添加任务
     missionMap.insert(pair<string, Mission*>(message.commit, p_mission));
@@ -109,7 +114,8 @@ void VersionControlLayer::handlePushFile(HTTPMessage& message)
             string hash1 = "hash1";
 
             // ----------------- TEMP --------------------
-            string filename = "/home/chenyufei/"+message.fileName+".1";
+            // 版本1
+            string filename = "/home/chenyufei/"+message.commit+"."+message.fileName;
             cout<<"open file:"<<filename<<endl;
             ifstream ifs1(filename.c_str());  // 创建文件流
             std::string buf;
@@ -120,7 +126,8 @@ void VersionControlLayer::handlePushFile(HTTPMessage& message)
                 file1 += buf;
             }
 
-            filename = "/home/chenyufei/"+message.fileName+".0";
+            // 版本0
+            filename = "/home/chenyufei/"+message.commit+"."+message.fileName;
             cout<<"open file:"<<filename<<endl;
             ifstream ifs0(filename.c_str());
             buf = "";
@@ -159,6 +166,14 @@ void VersionControlLayer::handlePushFile(HTTPMessage& message)
             p_mission->addFile(message.fileName);
 
         }
+        else
+        {
+            // DEBUG: 如果不需要比较，直接保存文件，并记录在VersionData中
+            // 保存文件
+            saveStringToFile(message.fileContent,"/home/chenyufei/"+message.commit+"."+message.fileName);
+            // 记录
+            VersionData::Instance().addFile(message.commit, message.fileName);
+        }
     }
 }
 
@@ -177,9 +192,10 @@ string VersionControlLayer::handlePushResult(HTTPMessage& message, std::vector<s
             // 从任务中获取结果文件名，加入filenames
             for(auto filename : p_mission->filenames)
             {
-                filenames.push_back(filename + ".conflict");
-                filenames.push_back(filename + ".merge");
-                filenames.push_back(filename + ".res");
+                // 注意这里用于保存结果的临时文件名格式为 [commit.filename.*]
+                filenames.push_back(message.commit+"."+filename + ".conflict");
+                filenames.push_back(message.commit+"."+filename + ".merge");
+                filenames.push_back(message.commit+"."+filename + ".res");
             }
 
 	    string res = "OK=========\n" + message.commit;
@@ -679,12 +695,13 @@ int VersionControlLayer::mergeFile(const std::string& file0,
     mergeDoc.AddMember("merged_node", merged_node, mergeDoc.GetAllocator());
 
     // 将conflictDoc 和 mergeDoc 存入以filename命名的结果文件
+    // 注意这里用于保存结果的临时文件名格式为 [commit.filename.*]
     StringBuffer conflictDocBuffer;
     Writer<StringBuffer> writer1(conflictDocBuffer);
     conflictDoc.Accept(writer1);
     // Output
     //std::cout << conflictDocBuffer.GetString() << std::endl;
-    saveStringToFile(conflictDocBuffer.GetString(), filename+".conflict");
+    saveStringToFile(conflictDocBuffer.GetString(), hash2+"."+filename+".conflict");
     cout<<"save conflict over"<<endl;
 
     StringBuffer mergeDocBuffer;
@@ -692,7 +709,7 @@ int VersionControlLayer::mergeFile(const std::string& file0,
     mergeDoc.Accept(writer2);
     // Output
     //std::cout << mergeDocBuffer.GetString() << std::endl;
-    saveStringToFile(mergeDocBuffer.GetString(), filename+".merge");
+    saveStringToFile(mergeDocBuffer.GetString(), hash2+"."+filename+".merge");
 
     cout<<"------------------"<<endl;
 
@@ -701,7 +718,7 @@ int VersionControlLayer::mergeFile(const std::string& file0,
     doc2.Accept(writer3);
     // Output
     std::cout << doc2Buffer.GetString() << std::endl;
-    saveStringToFile(doc2Buffer.GetString(), filename+".res");
+    saveStringToFile(doc2Buffer.GetString(), hash2+"."+filename+".res");
 
 
     cout<<"return "<<endl;
