@@ -89,6 +89,7 @@ void VersionControlLayer::handlePushStart(HTTPMessage& message)
 
     // TODO: 根据版本关系判断是否需要差异比较
     string brother = VersionData::Instance().getChild(message.base);
+    cout<<"brother:"<<brother<<endl;
     if(brother == "nobase" || brother == "nochild")
     {
         p_mission->needCompare = false;
@@ -115,7 +116,8 @@ void VersionControlLayer::handlePushFile(HTTPMessage& message)
 
             // ----------------- TEMP --------------------
             // 版本1
-            string filename = "/home/chenyufei/"+message.commit+"."+message.fileName;
+            string brotherCommit = VersionData::Instance().getChild(p_mission->base);
+            string filename = "/home/chenyufei/"+brotherCommit+"."+message.fileName;
             cout<<"open file:"<<filename<<endl;
             ifstream ifs1(filename.c_str());  // 创建文件流
             std::string buf;
@@ -125,9 +127,10 @@ void VersionControlLayer::handlePushFile(HTTPMessage& message)
                 file1 += "\n";
                 file1 += buf;
             }
+            ifs1.close();
 
             // 版本0
-            filename = "/home/chenyufei/"+message.commit+"."+message.fileName;
+            filename = "/home/chenyufei/"+p_mission->base+"."+message.fileName;
             cout<<"open file:"<<filename<<endl;
             ifstream ifs0(filename.c_str());
             buf = "";
@@ -137,6 +140,7 @@ void VersionControlLayer::handlePushFile(HTTPMessage& message)
                 file0 += "\n";
                 file0 += buf;
             }
+            ifs0.close();
             // ------------------ TEMP -------------------
 
 /*            // test
@@ -154,7 +158,7 @@ void VersionControlLayer::handlePushFile(HTTPMessage& message)
             // 处理合并
             thread t([=](){  // ATTENTION: should not be [&], coz handlePushFile will free the vars
                 cout<<"layer!"<<endl;
-                mergeFile(file0, file1, hash1, message.fileContent, message.commit, message.fileName);
+                p_mission->handleResult = mergeFile(file0, file1, hash1, message.fileContent, message.commit, message.fileName);
 //                mergeFile(file0, file1, hash1, file2, message.commit, message.fileName);
 
                 p_mission->stepForward();  // file merge over
@@ -173,6 +177,7 @@ void VersionControlLayer::handlePushFile(HTTPMessage& message)
             saveStringToFile(message.fileContent,"/home/chenyufei/"+message.commit+"."+message.fileName);
             // 记录
             VersionData::Instance().addFile(message.commit, message.fileName);
+            p_mission->stepForward();  // 不需要比较，直接进度向前一步
         }
     }
 }
@@ -198,7 +203,26 @@ string VersionControlLayer::handlePushResult(HTTPMessage& message, std::vector<s
                 filenames.push_back(message.commit+"."+filename + ".res");
             }
 
-	    string res = "OK=========\n" + message.commit;
+	    string res = "OK=========\n";
+            switch(p_mission->handleResult)
+            {
+                case 1:
+                {
+                    res = "merged=========\n";
+                    break;
+                }
+                case 2:
+                {
+                    res = "conflict=========\n";
+                    break;
+                }
+                case 3:
+                {
+                    res = "merged-conflict=========\n";
+                    break;
+                }
+            }
+            res += message.commit;
             missionMap.erase(it);
             return res;
         }
@@ -689,6 +713,18 @@ int VersionControlLayer::mergeFile(const std::string& file0,
     }
     cout<<"node over"<<endl;
 
+    int res = 0;  // 0表示无冲突无合并，1表示有合并无冲突，2表示无合并有冲突，3表示有合并有冲突
+    
+    // TODO: 这里的1 和2改成全局常量
+    cout<<conflict_node.Capacity()<<" "<<merged_navi.Capacity()<<" "<<merged_node.Capacity()<<endl;
+    if(conflict_node.Capacity()>0)  // 如果发生了冲突
+    {
+        res = res | 0x02;
+    }
+    if(merged_navi.Capacity()>0 || merged_node.Capacity()>0)  // 如果发生了合并
+    {
+        res = res | 0x01;
+    }
     // add result to responding doc
     conflictDoc.AddMember("conflict_node", conflict_node, conflictDoc.GetAllocator());
     mergeDoc.AddMember("merged_navi", merged_navi, mergeDoc.GetAllocator());
@@ -722,7 +758,7 @@ int VersionControlLayer::mergeFile(const std::string& file0,
 
 
     cout<<"return "<<endl;
-    return 0;
+    return res;
 }
 
 // <<----------- tools --------------->>

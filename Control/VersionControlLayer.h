@@ -33,7 +33,10 @@ class Mission
 {
 public:
     // 表示该任务是否需要进行比较，push指令创建该任务时根据hash值决定，之后每个push处理线程都要检查该值
-    bool needCompare = false;
+    bool needCompare = true;
+    
+    // 表示处理结果，客户端请求result的时候查看
+    int handleResult = 0;
     
     // 该任务所基于的基础版本hash
     std::string base = "";
